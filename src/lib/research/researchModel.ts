@@ -48,7 +48,12 @@ export async function callResearchModel({
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      messages: [{ role: "user", content: prompt }],
+      // The backend only reliably honours an explicit system message, so the
+      // research prompt is sent both ways.
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: prompt },
+      ],
       model,
       chatMode: "normal",
       searchEnabled: false,
