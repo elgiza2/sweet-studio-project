@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { m as motion, useInView, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Check, ExternalLink } from "lucide-react";
-import { TemplateProps, splitIntoSections, hostname } from "./templateUtils";
+import { ArrowRight, Check } from "lucide-react";
+import { TemplateProps, splitIntoSections } from "./templateUtils";
 import SmartImage from "./SmartImage";
 import { withInlineCitations } from "./CitationPill";
 
