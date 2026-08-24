@@ -25,33 +25,70 @@ export async function fetchWebSources(
 }
 
 /**
- * Deep Research needs breadth, not one query's first page. Fan out the user's
- * question into several angled queries, run them in parallel and merge the
- * de-duplicated results so a report is built on ~25-35 distinct sources.
+ * Deep Research needs massive breadth, not one query's first page. Fan the
+ * user's question out into many angled queries (facts, data, criticism,
+ * timeline, expert analysis, official documents, future outlook) in both the
+ * original language and English, read several result pages per angle, then
+ * merge everything de-duplicated so a report can stand on 80+ distinct sources.
  */
 export function buildResearchQueries(question: string): string[] {
   const q = (question || "").trim().replace(/\s+/g, " ").slice(0, 220);
   if (!q) return [];
-  return [q, `${q} latest news analysis`, `${q} data statistics report`];
+  const isArabic = /[\u0600-\u06FF]/.test(q);
+  const year = new Date().getFullYear();
+
+  const base = [
+    q,
+    `${q} ${year}`,
+    `${q} latest news analysis`,
+    `${q} data statistics report`,
+    `${q} official report study pdf`,
+    `${q} expert analysis in depth`,
+    `${q} criticism problems risks limitations`,
+    `${q} comparison alternatives`,
+    `${q} history timeline background`,
+    `${q} future outlook forecast ${year + 1}`,
+    `${q} case study real examples`,
+    `${q} market size revenue numbers`,
+  ];
+
+  if (isArabic) {
+    base.push(
+      `${q} تحليل مفصل`,
+      `${q} احصائيات وارقام`,
+      `${q} دراسة تقرير رسمي`,
+      `${q} مميزات وعيوب`,
+    );
+  }
+
+  // De-duplicate while preserving order.
+  const seen = new Set<string>();
+  return base.filter((item) => (seen.has(item) ? false : (seen.add(item), true)));
 }
 
 export async function fetchResearchSources(
   question: string,
-  limit = 30,
+  limit = 90,
 ): Promise<WebSource[]> {
   const queries = buildResearchQueries(question);
   if (!queries.length) return [];
-  // A single result page tops out around 20 links, so read three pages per
-  // angle. Search engines throttle bursts, so pace the calls in small waves
-  // instead of firing every request at once.
+  // A single result page tops out around 20 links. Read the first pages of
+  // every angle first (best signal), then go deeper on the strongest angles.
   const jobs: Array<[string, number]> = [];
-  for (const q of queries) for (const offset of [0, 20, 40]) jobs.push([q, offset]);
+  for (const offset of [0, 20, 40]) {
+    for (const q of queries) {
+      // Deep pages only for the primary angles — the long tail rarely pays off.
+      if (offset > 0 && queries.indexOf(q) >= 8) continue;
+      jobs.push([q, offset]);
+    }
+  }
 
   const batches: WebSource[][] = [];
-  for (let i = 0; i < jobs.length; i += 2) {
-    const wave = jobs.slice(i, i + 2);
+  const WAVE = 3;
+  for (let i = 0; i < jobs.length; i += WAVE) {
+    const wave = jobs.slice(i, i + WAVE);
     batches.push(...(await Promise.all(wave.map(([q, o]) => fetchWebSources(q, 20, o)))));
-    if (i + 2 < jobs.length) await new Promise((r) => setTimeout(r, 1500));
+    if (i + WAVE < jobs.length) await new Promise((r) => setTimeout(r, 1200));
   }
   const seen = new Set<string>();
   const out: WebSource[] = [];
@@ -75,9 +112,15 @@ export function formatSourcesBlock(sources: WebSource[]): string {
     .map((s, i) => `[${i + 1}] ${s.title}\nURL: ${s.url}\n${s.snippet}`)
     .join("\n\n");
   return [
-    "Live web results for this question (fetched just now).",
-    "Use them as your evidence, cite them inline as [1], [2], ... and finish with a Sources list of the URLs you actually used.",
+    `Live web results for this question (${sources.length} sources, fetched just now).`,
+    "These are your evidence base. Mine them exhaustively — do NOT answer from",
+    "memory and do NOT stop after the first few. Use at least 25 distinct",
+    "sources when the material allows it, cite every factual claim inline as a",
+    "Markdown link to the real URL, cross-check numbers across sources, note",
+    "conflicts explicitly, and finish with a full Sources list of everything",
+    "you actually used.",
     "",
     lines,
   ].join("\n");
 }
+
