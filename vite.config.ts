@@ -373,6 +373,8 @@ export default defineConfig({
     manusAdminDevPlugin(),
     computerAgentDevPlugin(),
     webSearchDevPlugin(),
+    readUrlDevPlugin(),
+
     transcribeDevPlugin(),
     VitePWA({
       registerType: "autoUpdate",
