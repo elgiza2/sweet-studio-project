@@ -1703,6 +1703,7 @@ const ChatMessage = ({
                 const showResearchDraftBox =
                   role === "assistant" &&
                   !!isDeepResearch &&
+                  !!isStreaming &&
                   !showResearchCard &&
                   displayContent.trim().length > 0;
                 if (showResearchDraftBox) {
