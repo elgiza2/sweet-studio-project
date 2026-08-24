@@ -131,12 +131,16 @@ async function gatherSources(
   }
 
   const batches: WebSource[][] = [];
-  const WAVE = 4;
+  const WAVE = 8;
   for (let i = 0; i < jobs.length; i += WAVE) {
     throwIfAborted(signal);
     const wave = jobs.slice(i, i + WAVE);
-    batches.push(...(await Promise.all(wave.map(([q, o]) => fetchWebSources(q, 20, o)))));
-    if (i + WAVE < jobs.length) await new Promise((r) => setTimeout(r, 900));
+    batches.push(
+      ...(await Promise.all(
+        wave.map(([q, o]) => fetchWebSources(q, 20, o).catch(() => [] as WebSource[])),
+      )),
+    );
+    if (i + WAVE < jobs.length) await new Promise((r) => setTimeout(r, 300));
   }
 
   const seen = new Set<string>();
@@ -163,25 +167,28 @@ async function readPages(
   if (!urls.length) return [];
   const pages: ReadPage[] = [];
   const CHUNK = 6;
-  for (let i = 0; i < urls.length; i += CHUNK) {
-    throwIfAborted(signal);
-    try {
-      const resp = await fetch("/api/read-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ urls: urls.slice(i, i + CHUNK), maxChars: 8000 }),
-        signal,
-      });
-      if (!resp.ok) continue;
-      const data = (await resp.json()) as { pages?: ReadPage[] };
-      for (const p of data.pages || []) {
-        if (p?.text && p.text.length > 300) {
-          pages.push({ url: p.url, title: p.title || p.url, text: p.text });
-        }
+  const chunks: string[][] = [];
+  for (let i = 0; i < urls.length; i += CHUNK) chunks.push(urls.slice(i, i + CHUNK));
+  throwIfAborted(signal);
+  const results = await Promise.all(
+    chunks.map(async (batch) => {
+      try {
+        const resp = await fetch("/api/read-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ urls: batch, maxChars: 8000 }),
+          signal,
+        });
+        if (!resp.ok) return [] as ReadPage[];
+        const data = (await resp.json()) as { pages?: ReadPage[] };
+        return (data.pages || []).filter((p) => p?.text && p.text.length > 300);
+      } catch {
+        return [] as ReadPage[];
       }
-    } catch {
-      /* keep going — snippets still carry the report */
-    }
+    }),
+  );
+  for (const batch of results) {
+    for (const p of batch) pages.push({ url: p.url, title: p.title || p.url, text: p.text });
   }
   return pages;
 }
@@ -220,7 +227,7 @@ async function analyse(
 ): Promise<Array<{ question: string; notes: string }>> {
   const questions = plan.subQuestions.slice(0, 8);
   const out: Array<{ question: string; notes: string }> = [];
-  const WAVE = 2;
+  const WAVE = 4;
   for (let i = 0; i < questions.length; i += WAVE) {
     throwIfAborted(signal);
     const wave = questions.slice(i, i + WAVE);

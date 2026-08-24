@@ -80,6 +80,13 @@ export const makeLeakedToolStreamSanitizer = () => {
 export const normalizeStatusLabel = (status: string) => {
   if (!status.trim()) return "";
   const lower = status.toLowerCase();
+  // Deep Research agent stages are already user-facing — show them verbatim.
+  if (
+    /^(planning the research|searching the web across|reading \d+ of \d+ sources|analysing evidence|analyzing evidence|writing the final report)/i.test(
+      status.trim(),
+    )
+  )
+    return status.trim();
   const blocklist = [
     "web_search",
     "browse_website",
