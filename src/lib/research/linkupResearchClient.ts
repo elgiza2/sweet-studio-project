@@ -47,9 +47,16 @@ const wait = (ms: number, signal?: AbortSignal) =>
 export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupRunResult> {
   const { query, context = "", depth = "L", onStatus, onDelta, onSources, signal } = opts;
 
-  const q = context
-    ? `${query}\n\nConversation context (for disambiguation only):\n${context.slice(0, 1200)}`
-    : query;
+  const isArabic = /[\u0600-\u06FF]/.test(query);
+  const q = [
+    query,
+    "",
+    `Write a long, structured, multi-section report with inline citations, in ${isArabic ? "Arabic" : "the same language as the question"}.`,
+    context ? `Conversation context (for disambiguation only):\n${context.slice(0, 1200)}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
 
   onStatus?.("Starting the deep research agent...");
   const created = await post({ action: "start", query: q, depth, mode: "research" }, signal);
