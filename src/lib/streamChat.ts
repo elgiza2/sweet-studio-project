@@ -219,7 +219,11 @@ export async function streamChat({
           learnState = null;
         }
       }
-      customSystem = mod.buildCustomSystem(chatMode, selectedModel?.id, learnState);
+      // Deep Research is streamed as a "normal" turn to the backend (its own
+      // research agent stalls), but the PROMPT must still be the research one —
+      // otherwise the model answers like the plain site assistant.
+      const promptMode = deepResearch ? "deep-research" : chatMode;
+      customSystem = mod.buildCustomSystem(promptMode, selectedModel?.id, learnState);
       if (chatMode !== "images" && chatMode !== "video") {
         const { chatModelPreferenceHint } = await import("@/lib/chatModelPreferences");
         const preferenceHint = chatModelPreferenceHint();
@@ -251,10 +255,10 @@ export async function streamChat({
         messages,
         model,
         tier,
-        // Deep Research runs fully inside our own agent (search-enabled chat
-        // + research system prompt), so we always force web search on and we
-        // never ask the backend for its legacy research-job pipeline.
-        searchEnabled: deepResearch ? true : searchEnabled,
+        // Deep Research runs fully inside our own agent: we already fetched and
+        // injected the live sources, so the backend web tool stays OFF (it
+        // stalls long research turns).
+        searchEnabled,
         chatMode,
         user_id,
         conversation_id,
