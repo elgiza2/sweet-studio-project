@@ -1327,13 +1327,13 @@ const ChatMessage = ({
 
   const hasStructured = structuredBlocks && structuredBlocks.some((b) => b.type !== "text");
 
-  // Keep the legacy browser-agent outputs in their preview card. Native
-  // Deep Research reports stay inline so the cited answer is immediately
-  // readable in chat instead of being reduced to an "Open" button.
+  // Deep Research: render a clean card after streaming completes; the card's
+  // Open button loads the full report in the research preview page.
   const looksLikeResearch =
     role === "assistant" &&
     (/Browser Agent Result for/i.test(content) ||
-      /===\s*Next Source\s*===/i.test(content));
+      /===\s*Next Source\s*===/i.test(content) ||
+      isDeepResearch === true);
   const showResearchCard = looksLikeResearch && !isStreaming && content.trim().length > 200;
 
   const showNarration =
