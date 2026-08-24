@@ -398,28 +398,38 @@ export async function runChatStreamTurn(opts: RunChatStreamTurnOptions): Promise
     }
   }
 
-  const isDeepResearch = chatMode === "deep-research";
   const lastUserText = (userMsg?.content || "").toString();
+  // Deep Research mode always uses the agent; in normal chat the main agent
+  // delegates to it as a tool whenever the request is a real research task.
+  const isDeepResearch =
+    chatMode === "deep-research" || (chatMode === "normal" && shouldDelegateToDeepResearch(lastUserText));
 
-  if (isDeepResearch) {
-    setSearchStatus("Searching the web across multiple angles...");
-    // Our own research agent fetches live sources first, then reasons over
-    // them — the backend model has no web access of its own.
-    const sources = await fetchResearchSources(lastUserText, 90);
-    if (sources.length) {
-      setSearchStatus(`Reading and cross-checking ${sources.length} sources...`);
-      const block = formatSourcesBlock(sources);
+  // Short conversation context so follow-up research questions resolve.
+  const researchContext = messages
+    .slice(-4)
+    .map((m) => `${m.role}: ${(m.content || "").toString().slice(0, 500)}`)
+    .join("\n");
 
-      const target = allMessages[allMessages.length - 1];
-      if (target) {
-        if (typeof target.content === "string") {
-          target.content = `${target.content}\n\n${block}`;
-        } else if (Array.isArray(target.content)) {
-          target.content.push({ type: "text" as const, text: block });
-        }
+  const researchPipeline = isDeepResearch
+    ? async ({
+        onDelta,
+        onStatus,
+        signal,
+      }: {
+        onDelta: (chunk: string) => void;
+        onStatus: (status: string) => void;
+        signal?: AbortSignal;
+      }) => {
+        await runDeepResearchTool({
+          query: lastUserText,
+          context: researchContext,
+          onStatus,
+          onDelta,
+          signal,
+        });
       }
-    }
-  }
+    : undefined;
+
 
   // Deep Research fetches its own live sources above. Leaving the backend's
   // own web tool on makes the stream hang with zero tokens (verified), so it
