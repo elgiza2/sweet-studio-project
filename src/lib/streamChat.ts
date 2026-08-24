@@ -64,6 +64,8 @@ export async function streamChat({
   onReasoning,
   onUsage,
   onModel,
+  localPipeline,
+
   signal,
 }: {
   messages: Msg[];
