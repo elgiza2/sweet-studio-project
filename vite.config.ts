@@ -351,6 +351,48 @@ function deepResearchDevPlugin(): Plugin {
   };
 }
 
+/** Dev-server streaming proxy for the independent research report writer. */
+function researchWriterDevPlugin(): Plugin {
+  return {
+    name: "research-writer-dev",
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use("/api/research-write", (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: "Method not allowed" }));
+          return;
+        }
+        const chunks: Buffer[] = [];
+        req.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+        req.on("end", async () => {
+          try {
+            const payload = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+            const { proxyResearchWriter } = await import("./src/lib/research/researchWriterCore");
+            const response = await proxyResearchWriter(payload);
+            res.statusCode = response.status;
+            response.headers.forEach((value, key) => res.setHeader(key, value));
+            if (!response.body) {
+              res.end();
+              return;
+            }
+            const reader = response.body.getReader();
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              res.write(Buffer.from(value));
+            }
+            res.end();
+          } catch (error) {
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: error instanceof Error ? error.message : "writer_failed" }));
+          }
+        });
+      });
+    },
+  };
+}
+
 
 /** Dev-server equivalent of api/transcribe.ts (composer mic dictation). */
 function transcribeDevPlugin(): Plugin {
@@ -410,6 +452,7 @@ function transcribeDevPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [
+    researchWriterDevPlugin(),
     react({
       babel: {
         plugins: [

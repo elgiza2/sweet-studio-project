@@ -101,12 +101,7 @@ export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupR
         onStatus,
         onDelta,
         signal,
-      }).catch(() => "");
-
-      if (!report.trim()) {
-        report = raw;
-        onDelta?.(report);
-      }
+      });
 
       if (sources.length) {
         const list = sources

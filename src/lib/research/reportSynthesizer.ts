@@ -9,10 +9,10 @@ import {
   SYNTH_SECTION_SYSTEM,
 } from "./prompts";
 
-const CHUNK_BUDGET = 3200;
+const CHUNK_BUDGET = 5200;
 
 /** Splits the raw findings into heading-aligned chunks that fit one model call. */
-export function chunkFindings(raw: string, budget = CHUNK_BUDGET, maxChunks = 8): string[] {
+export function chunkFindings(raw: string, budget = CHUNK_BUDGET, maxChunks = 6): string[] {
   const blocks = raw
     .split(/\n(?=#{1,6}\s)/g)
     .flatMap((b) => (b.length > budget * 2 ? b.match(new RegExp(`[\\s\\S]{1,${budget}}`, "g")) || [] : [b]))
@@ -65,7 +65,6 @@ export async function synthesizeResearchReport({
 
   const chunks = chunkFindings(material);
   const total = chunks.length + 2;
-  let report = "";
 
   const run = async (system: string, instruction: string, evidence: string) => {
     const text = await callResearchModel({
@@ -80,37 +79,46 @@ export async function synthesizeResearchReport({
       ].join("\n"),
       model,
       signal,
-      idleTimeoutMs: 120_000,
-    }).catch(() => "");
+    });
     const clean = text.trim();
-    if (!clean) return;
-    const piece = report ? `\n\n${clean}` : clean;
-    report += piece;
-    onDelta?.(piece);
+    if (!clean) throw new Error("Research writer returned an empty section.");
+    if (/حسابك\s+مش\s+مجاني|Premium\s*\/\s*Max|الميزات\s+المدفوعة/i.test(clean)) {
+      throw new Error("Research writer returned unrelated account text.");
+    }
+    return clean;
   };
 
-  onStatus?.(`Writing the analysis (1/${total})...`);
-  await run(
+  onStatus?.(`Writing ${total} analytical sections...`);
+  const openingPromise = run(
     SYNTH_OPENING_SYSTEM,
     "Write the opening now: title, executive summary, and context.",
     chunks.slice(0, 2).join("\n\n").slice(0, CHUNK_BUDGET),
   );
 
-  for (let i = 0; i < chunks.length; i += 1) {
-    onStatus?.(`Writing the analysis (${i + 2}/${total})...`);
-    await run(
+  // Sections are independent views of different evidence chunks. Writing them
+  // concurrently avoids turning a strong report into a 15-minute browser job.
+  const sectionPromises = chunks.map((chunk) =>
+    run(
       SYNTH_SECTION_SYSTEM,
       "Write ONLY one themed analytical section from this material.",
-      chunks[i],
-    );
-  }
+      chunk,
+    ),
+  );
 
-  onStatus?.(`Writing the analysis (${total}/${total})...`);
-  await run(
+  const closingPromise = run(
     SYNTH_CLOSING_SYSTEM,
     "Write ONLY the closing now.",
     chunks.slice(-2).join("\n\n").slice(0, CHUNK_BUDGET),
   );
 
-  return report.trim();
+  const pieces = await Promise.all([openingPromise, ...sectionPromises, closingPromise]);
+  const report = pieces.join("\n\n");
+  onDelta?.(report);
+
+  const finished = report.trim();
+  const words = finished.split(/\s+/).filter(Boolean).length;
+  if (words < 1200 || (finished.match(/^##?\s+/gm) || []).length < 5) {
+    throw new Error("Research report did not meet the required depth.");
+  }
+  return finished;
 }
