@@ -402,13 +402,14 @@ export async function runChatStreamTurn(opts: RunChatStreamTurnOptions): Promise
   const lastUserText = (userMsg?.content || "").toString();
 
   if (isDeepResearch) {
-    setSearchStatus("Searching the web and checking sources...");
+    setSearchStatus("Searching the web across multiple angles...");
     // Our own research agent fetches live sources first, then reasons over
     // them — the backend model has no web access of its own.
-    const sources = await fetchResearchSources(lastUserText, 30);
+    const sources = await fetchResearchSources(lastUserText, 90);
     if (sources.length) {
-      setSearchStatus(`Reading ${sources.length} sources...`);
+      setSearchStatus(`Reading and cross-checking ${sources.length} sources...`);
       const block = formatSourcesBlock(sources);
+
       const target = allMessages[allMessages.length - 1];
       if (target) {
         if (typeof target.content === "string") {
