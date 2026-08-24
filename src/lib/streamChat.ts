@@ -64,6 +64,8 @@ export async function streamChat({
   onReasoning,
   onUsage,
   onModel,
+  localPipeline,
+
   signal,
 }: {
   messages: Msg[];
@@ -109,7 +111,36 @@ export async function streamChat({
   /** Fires once with the actual model id that produced the response (from x-model-used header or first SSE frame). */
   onModel?: (model: string) => void;
   signal?: AbortSignal;
+  /**
+   * Local agent pipeline (Deep Research). When provided, the turn is produced
+   * entirely by our own agent instead of the backend chat stream, but all the
+   * caller's callbacks (delta / status / done / error) behave identically.
+   */
+  localPipeline?: (handles: {
+    onDelta: (chunk: string) => void;
+    onStatus: (status: string) => void;
+    signal?: AbortSignal;
+  }) => Promise<void>;
 }) {
+  if (localPipeline) {
+    try {
+      await localPipeline({
+        onDelta,
+        onStatus: (s) => onStatus?.(s),
+        signal,
+      });
+      await onDone();
+    } catch (e: any) {
+      if (e?.name === "AbortError") {
+        await onDone();
+        return;
+      }
+      onError?.(e?.message || "Deep Research failed. Please try again.");
+      await onDone();
+    }
+    return;
+  }
+
   // ── Background job mode ─────────────────────────────────────────────────
   // Server creates a background_jobs row and streams progress into it. We
   // subscribe via Realtime; closing the tab no longer interrupts the answer.

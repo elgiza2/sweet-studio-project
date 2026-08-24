@@ -248,6 +248,58 @@ function webSearchDevPlugin(): Plugin {
   };
 }
 
+/** Dev-server equivalent of api/read-url.ts (Deep Research page reader). */
+function readUrlDevPlugin(): Plugin {
+  return {
+    name: "read-url-dev",
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use("/api/read-url", (req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Cache-Control", "no-store");
+        if (req.method === "OPTIONS") {
+          res.statusCode = 204;
+          res.end();
+          return;
+        }
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: "Method not allowed" }));
+          return;
+        }
+        const chunks: Buffer[] = [];
+        req.on("data", (c) => chunks.push(Buffer.from(c)));
+        req.on("end", async () => {
+          let payload: { urls?: string[]; maxChars?: number } | null = null;
+          try {
+            payload = chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : null;
+          } catch {
+            payload = null;
+          }
+          try {
+            const { readUrls } = await import("./src/lib/search/readUrlCore");
+            const pages = await readUrls(
+              Array.isArray(payload?.urls) ? payload!.urls!.map(String) : [],
+              Number(payload?.maxChars ?? 9000),
+            );
+            res.statusCode = 200;
+            res.end(JSON.stringify({ pages }));
+          } catch (error) {
+            res.statusCode = 200;
+            res.end(
+              JSON.stringify({
+                pages: [],
+                error: error instanceof Error ? error.message : "read_failed",
+              }),
+            );
+          }
+        });
+      });
+    },
+  };
+}
+
+
+
 /** Dev-server equivalent of api/transcribe.ts (composer mic dictation). */
 function transcribeDevPlugin(): Plugin {
   return {
@@ -321,6 +373,8 @@ export default defineConfig({
     manusAdminDevPlugin(),
     computerAgentDevPlugin(),
     webSearchDevPlugin(),
+    readUrlDevPlugin(),
+
     transcribeDevPlugin(),
     VitePWA({
       registerType: "autoUpdate",
