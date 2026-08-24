@@ -1,6 +1,7 @@
 /** @doc Browser-side driver for the Linkup deep-research provider: starts the
  *  task through /api/deep-research and polls it until the cited report is ready. */
 import type { WebSource } from "@/lib/search/webSearchClient";
+import { synthesizeResearchReport } from "./reportSynthesizer";
 
 export type LinkupDepth = "S" | "M" | "L" | "XL";
 
