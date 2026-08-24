@@ -82,7 +82,7 @@ export const normalizeStatusLabel = (status: string) => {
   const lower = status.toLowerCase();
   // Deep Research agent stages are already user-facing — show them verbatim.
   if (
-    /^(planning the research|starting the deep research|researching the web|reading the findings|analysing the findings|analyzing the findings|searching the web across|reading \d+ of \d+ sources|analysing evidence|analyzing evidence|writing (the )?(final )?report|writing \\d+ analytical sections|writing section)/i.test(
+    /^(planning the research|starting the deep research|researching the web|reading the findings|analysing the findings|analyzing the findings|searching the web across|reading \d+ of \d+ sources|analysing evidence|analyzing evidence|writing (the )?(final )?report|writing \d+ analytical sections|writing section)/i.test(
       status.trim(),
     )
   )
