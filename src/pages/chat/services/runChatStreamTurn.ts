@@ -242,7 +242,10 @@ export async function runChatStreamTurn(opts: RunChatStreamTurnOptions): Promise
   let capturedModel: string | null = null;
 
   const buildAssistantMetadata = (extra?: Record<string, unknown>) => {
-    const metadata: Record<string, unknown> = { ...(extra || {}) };
+    const metadata: Record<string, unknown> = {
+      ...(isDeepResearch ? { kind: "deepResearch", mode: "deep-research" } : {}),
+      ...(extra || {}),
+    };
     if (assistantToolParts.length > 0) metadata.toolParts = assistantToolParts;
     if (assistantReasoning.trim()) metadata.reasoning = assistantReasoning;
     if (generatedVideos.length > 0) metadata.videos = generatedVideos;
