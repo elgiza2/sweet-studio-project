@@ -426,6 +426,8 @@ export default defineConfig({
     computerAgentDevPlugin(),
     webSearchDevPlugin(),
     readUrlDevPlugin(),
+    deepResearchDevPlugin(),
+
 
     transcribeDevPlugin(),
     VitePWA({
