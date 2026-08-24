@@ -17,6 +17,7 @@ import {
   FolderTree,
   RefreshCw,
   GitBranch,
+  Brain,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { m as motion, AnimatePresence } from "framer-motion";
