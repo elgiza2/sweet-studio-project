@@ -455,7 +455,9 @@ export async function runChatStreamTurn(opts: RunChatStreamTurnOptions): Promise
   }
 
   await streamChat({
+    localPipeline: researchPipeline,
     messages: allMessages,
+
     model: activeModel,
     tier: megsyTier as "lite" | "pro" | "max",
     searchEnabled: smartSearch,
