@@ -219,7 +219,11 @@ export async function streamChat({
           learnState = null;
         }
       }
-      customSystem = mod.buildCustomSystem(chatMode, selectedModel?.id, learnState);
+      // Deep Research is streamed as a "normal" turn to the backend (its own
+      // research agent stalls), but the PROMPT must still be the research one —
+      // otherwise the model answers like the plain site assistant.
+      const promptMode = deepResearch ? "deep-research" : chatMode;
+      customSystem = mod.buildCustomSystem(promptMode, selectedModel?.id, learnState);
       if (chatMode !== "images" && chatMode !== "video") {
         const { chatModelPreferenceHint } = await import("@/lib/chatModelPreferences");
         const preferenceHint = chatModelPreferenceHint();
