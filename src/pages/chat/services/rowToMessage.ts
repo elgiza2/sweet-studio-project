@@ -72,7 +72,10 @@ export function rowToMessage(
                 meta.kind === "slidesPending" ||
                 convMode === "slides"
               ? "slides"
-              : role === "assistant" && convMode === "research"
+              : role === "assistant" &&
+                  (meta.kind === "deepResearch" ||
+                    meta.mode === "deep-research" ||
+                    convMode === "research")
                 ? "deep-research"
                 : convMode === "learning"
                   ? "learning"
