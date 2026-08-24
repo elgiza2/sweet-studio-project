@@ -325,7 +325,7 @@ const normalizeResearchMarkdown = (content: string) => {
     .replace(/^\s*##\s*(?:Highlights|Key Findings)\s*$/gim, "")
     .replace(/^\s*##\s*(?:Gallery Images|Image Gallery)\s*$/gim, "")
     .replace(
-      /\n+\s*(?:#{1,6}\s*)?(?:\*\*)?\s*(?:Sources|Sources|References|References)\s*[:：]?\s*(?:\*\*)?\s*\n[\s\S]*$/i,
+      /\n+\s*(?:#{1,6}\s*)?(?:\*\*)?\s*(?:Sources|Sources|References|References|المصادر|المراجع|مصادر|مراجع)\s*(?:\/\s*(?:Sources|Sources|References|References|المصادر|المراجع|مصادر|مراجع))?\s*[:：]?\s*(?:\*\*)?\s*\n[\s\S]*$/i,
       "",
     )
     .replace(/^\s*\*\*(\d+)\.\s*\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)\*\*\s*$/gm, "### [$2]($3)")
