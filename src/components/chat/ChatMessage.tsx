@@ -1747,9 +1747,10 @@ const ChatMessage = ({
               })()
             )}
 
-            {/* Sources — hidden for deep research */}
-            {!isStreaming && !isDeepResearch && uniqueLinks.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-border/40">
+            {/* Sources + Thinking — hidden for deep research */}
+            {!isStreaming && !isDeepResearch && (uniqueLinks.length > 0 || (role === "assistant" && !!reasoning)) && (
+              <div className="mt-3 pt-3 border-t border-border/40 flex flex-wrap items-center gap-2">
+                {uniqueLinks.length > 0 && (
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border/40 text-xs font-medium text-foreground hover:border-primary/40 transition-colors">
@@ -1788,8 +1789,25 @@ const ChatMessage = ({
                     </div>
                   </PopoverContent>
                 </Popover>
+                )}
+                {role === "assistant" && !!reasoning && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border/40 text-xs font-medium text-foreground hover:border-primary/40 transition-colors">
+                        <Brain className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span>Thoughts</span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-80 p-3 max-h-80 overflow-y-auto">
+                      <div className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+                        {reasoning}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
             )}
+
 
             {/* Optional artifact slot (e.g. docs/slides card) — rendered before action buttons */}
             {bottomSlot && !isStreaming && <div className="mt-3">{bottomSlot}</div>}
