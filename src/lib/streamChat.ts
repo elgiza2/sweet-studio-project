@@ -255,10 +255,10 @@ export async function streamChat({
         messages,
         model,
         tier,
-        // Deep Research runs fully inside our own agent (search-enabled chat
-        // + research system prompt), so we always force web search on and we
-        // never ask the backend for its legacy research-job pipeline.
-        searchEnabled: deepResearch ? true : searchEnabled,
+        // Deep Research runs fully inside our own agent: we already fetched and
+        // injected the live sources, so the backend web tool stays OFF (it
+        // stalls long research turns).
+        searchEnabled,
         chatMode,
         user_id,
         conversation_id,
