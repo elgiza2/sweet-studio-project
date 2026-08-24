@@ -88,8 +88,25 @@ export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupR
           }))
         : [];
       onSources?.(sources);
-      let report = String(task.answer || "").trim();
-      if (!report) throw new Error("research_empty");
+      const raw = String(task.answer || "").trim();
+      if (!raw) throw new Error("research_empty");
+
+      // The provider returns dense sourced material. Run our own writer over it
+      // so the user gets an explained analysis, not a raw data dump.
+      onStatus?.("Analysing the findings and writing the report...");
+      let report = await synthesizeResearchReport({
+        question: query,
+        raw,
+        onStatus,
+        onDelta,
+        signal,
+      }).catch(() => "");
+
+      if (!report.trim()) {
+        report = raw;
+        onDelta?.(report);
+      }
+
       if (sources.length) {
         const list = sources
           .slice(0, 40)
@@ -97,9 +114,9 @@ export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupR
           .join("\n");
         report += `\n\n## المصادر / Sources\n${list}`;
       }
-      onDelta?.(report);
       return { report, sources };
     }
+
   }
   throw new Error("research_timeout");
 }
