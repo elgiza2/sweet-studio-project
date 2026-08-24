@@ -1371,7 +1371,7 @@ const ChatMessage = ({
         {role === "assistant" && parallelTasks && parallelTasks.length > 1 && (
           <ParallelAgentsPanel tasks={parallelTasks} active={!!isStreaming || !!isThinking} />
         )}
-        {role === "assistant" && reasoning && (
+        {role === "assistant" && reasoning && (isStreaming || isDeepResearch) && (
           <ReasoningPanel text={reasoning} streaming={isStreaming} />
         )}
         {role === "assistant" && !isStreaming && metadata && (
