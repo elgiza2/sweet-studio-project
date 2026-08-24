@@ -4,6 +4,8 @@
  *  research instead of a quick answer. */
 import type { WebSource } from "@/lib/search/webSearchClient";
 import { runDeepResearchAgent } from "./deepResearchAgent";
+import { runLinkupResearch } from "./linkupResearchClient";
+
 
 export const DEEP_RESEARCH_TOOL = {
   name: "deep_research",
@@ -55,8 +57,26 @@ export interface DeepResearchToolRun {
   signal?: AbortSignal;
 }
 
-/** Runs the agent as a tool call and returns the final report text. */
+/** Runs the agent as a tool call and returns the final report text.
+ *  Primary provider: Linkup /research (autonomous, cited). Falls back to the
+ *  in-repo multi-stage agent when the provider is unavailable. */
 export async function runDeepResearchTool(run: DeepResearchToolRun): Promise<string> {
+  try {
+    const linkup = await runLinkupResearch({
+      query: run.query,
+      context: run.context,
+      depth: "L",
+      onStatus: run.onStatus,
+      onDelta: run.onDelta,
+      onSources: run.onSources,
+      signal: run.signal,
+    });
+    if (linkup.report.trim()) return linkup.report;
+  } catch (err) {
+    if ((err as Error)?.name === "AbortError") throw err;
+    run.onStatus?.("Switching to the built-in research pipeline...");
+  }
+
   const result = await runDeepResearchAgent({
     question: run.query,
     context: run.context,
@@ -68,3 +88,4 @@ export async function runDeepResearchTool(run: DeepResearchToolRun): Promise<str
   });
   return result.report;
 }
+

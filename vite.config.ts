@@ -298,6 +298,58 @@ function readUrlDevPlugin(): Plugin {
   };
 }
 
+/** Dev-server equivalent of api/deep-research.ts (Linkup research provider). */
+function deepResearchDevPlugin(): Plugin {
+  return {
+    name: "deep-research-dev",
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use("/api/deep-research", (req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Cache-Control", "no-store");
+        if (req.method === "OPTIONS") {
+          res.statusCode = 204;
+          res.end();
+          return;
+        }
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: "Method not allowed" }));
+          return;
+        }
+        const chunks: Buffer[] = [];
+        req.on("data", (c) => chunks.push(Buffer.from(c)));
+        req.on("end", async () => {
+          let payload: Record<string, any> | null = null;
+          try {
+            payload = chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : null;
+          } catch {
+            payload = null;
+          }
+          try {
+            const mod = await import("./src/lib/research/linkupCore");
+            const data =
+              payload?.action === "poll"
+                ? await mod.getLinkupResearch(String(payload?.id ?? ""))
+                : await mod.createLinkupResearch({
+                    query: String(payload?.query ?? ""),
+                    depth: payload?.depth,
+                    mode: payload?.mode,
+                  });
+            res.statusCode = 200;
+            res.end(JSON.stringify(data));
+          } catch (error) {
+            res.statusCode = 200;
+            res.end(
+              JSON.stringify({
+                error: error instanceof Error ? error.message : "deep_research_failed",
+              }),
+            );
+          }
+        });
+      });
+    },
+  };
+}
 
 
 /** Dev-server equivalent of api/transcribe.ts (composer mic dictation). */
@@ -374,6 +426,8 @@ export default defineConfig({
     computerAgentDevPlugin(),
     webSearchDevPlugin(),
     readUrlDevPlugin(),
+    deepResearchDevPlugin(),
+
 
     transcribeDevPlugin(),
     VitePWA({
