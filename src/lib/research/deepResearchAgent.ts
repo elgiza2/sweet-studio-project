@@ -4,7 +4,13 @@
  *  can call for any heavy research request. */
 import { fetchWebSources, type WebSource } from "@/lib/search/webSearchClient";
 import { callResearchModel, callResearchModelJson } from "./researchModel";
-import { ANALYST_SYSTEM, PLANNER_SYSTEM, WRITER_SYSTEM } from "./prompts";
+import {
+  ANALYST_SYSTEM,
+  PLANNER_SYSTEM,
+  WRITER_CLOSING_SYSTEM,
+  WRITER_OPENING_SYSTEM,
+  WRITER_SECTION_SYSTEM,
+} from "./prompts";
 
 export interface ResearchPlan {
   topic: string;
@@ -193,22 +199,29 @@ async function readPages(
   return pages;
 }
 
+/**
+ * Hard budget per model call. The backend silently drops oversized turns and
+ * answers with its generic help-desk reply, so every prompt stays small and the
+ * depth comes from running MANY small calls instead of one huge one.
+ */
+export const PROMPT_BUDGET = 4200;
+
 function evidenceFor(
   question: string,
   sources: WebSource[],
   pages: ReadPage[],
-  maxChars = 26_000,
+  maxChars = PROMPT_BUDGET,
 ): string {
   const parts: string[] = [];
   let used = 0;
   for (const p of pages) {
-    const block = `### PAGE: ${p.title}\nURL: ${p.url}\n${p.text.slice(0, 5000)}`;
+    const block = `### PAGE: ${p.title}\nURL: ${p.url}\n${p.text.slice(0, 1600)}`;
     if (used + block.length > maxChars) break;
     parts.push(block);
     used += block.length;
   }
   for (const s of sources) {
-    const block = `### SNIPPET: ${s.title}\nURL: ${s.url}\n${s.snippet}`;
+    const block = `### SNIPPET: ${s.title}\nURL: ${s.url}\n${(s.snippet || "").slice(0, 400)}`;
     if (used + block.length > maxChars) break;
     parts.push(block);
     used += block.length;
@@ -252,31 +265,33 @@ async function analyse(
   return out;
 }
 
+/** Small, per-chunk dossier: only the notes this writing step actually needs. */
 function buildDossier(
   plan: ResearchPlan,
   notes: Array<{ question: string; notes: string }>,
   sources: WebSource[],
+  budget = PROMPT_BUDGET,
 ): string {
   const sourceList = sources
-    .slice(0, 60)
-    .map((s, i) => `[${i + 1}] ${s.title} — ${s.url}`)
+    .slice(0, 12)
+    .map((s, i) => `[${i + 1}] ${s.title.slice(0, 90)} — ${s.url}`)
     .join("\n");
-  const noteBlocks = notes
-    .map((n, i) => `## Analyst note ${i + 1} — ${n.question}\n${n.notes}`)
-    .join("\n\n");
-  return [
+  const head = [
     `RESEARCH TOPIC: ${plan.topic}`,
     `REPORT LANGUAGE: ${plan.language}`,
     "",
-    "SUB-QUESTIONS COVERED:",
-    plan.subQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n"),
+    "SOURCE LIST (live sources, fetched minutes ago):",
+    sourceList,
     "",
     "VERIFIED ANALYST NOTES (evidence base):",
-    noteBlocks,
-    "",
-    `SOURCE LIST (${sources.length} live sources, fetched minutes ago):`,
-    sourceList,
   ].join("\n");
+
+  const room = Math.max(600, budget - head.length);
+  const per = Math.max(300, Math.floor(room / Math.max(1, notes.length)));
+  const noteBlocks = notes
+    .map((n, i) => `## Note ${i + 1} — ${n.question}\n${n.notes.slice(0, per)}`)
+    .join("\n\n");
+  return `${head}\n${noteBlocks}`.slice(0, budget);
 }
 
 /**
@@ -310,26 +325,72 @@ export async function runDeepResearchAgent(
 
   const notes = await analyse(plan, sources, pages, model, onStatus, signal);
 
-  onStatus?.("Writing the final report...");
-  const dossier = buildDossier(plan, notes, sources);
-  const report = await callResearchModel({
-    system: WRITER_SYSTEM,
-    prompt: [
-      `User's research request: ${question}`,
-      context ? `Conversation context:\n${context}` : "",
-      "",
-      "RESEARCH DOSSIER:",
-      dossier,
-      "",
-      "Now write the final report in full.",
-    ]
-      .filter(Boolean)
-      .join("\n"),
-    model,
-    onDelta,
-    signal,
-    idleTimeoutMs: 180_000,
-  });
+  // The report is written in small chunks: oversized turns are dropped by the
+  // backend, and one huge generation also blows its execution budget.
+  const emit = (chunk: string) => {
+    onDelta?.(chunk);
+    return chunk;
+  };
+
+  let report = "";
+  const writeChunk = async (
+    system: string,
+    instruction: string,
+    chunkNotes: Array<{ question: string; notes: string }>,
+  ) => {
+    throwIfAborted(signal);
+    const dossier = buildDossier(plan, chunkNotes, sources, PROMPT_BUDGET - 400);
+    const text = await callResearchModel({
+      system,
+      prompt: [`Research request: ${question}`, "", dossier, "", instruction].join("\n"),
+      model,
+      onDelta,
+      signal,
+      idleTimeoutMs: 120_000,
+    }).catch(() => "");
+    if (!text.trim()) return;
+    report += text.trim();
+  };
+
+  const sections = notes.length
+    ? notes.slice(0, 7)
+    : plan.subQuestions.slice(0, 5).map((q) => ({ question: q, notes: "" }));
+  const totalParts = sections.length + 2;
+
+  onStatus?.(`Writing the report (1/${totalParts})...`);
+  await writeChunk(
+    WRITER_OPENING_SYSTEM,
+    "Write the opening of the report now (title, executive summary, context).",
+    sections.slice(0, 4),
+  );
+
+  for (let i = 0; i < sections.length; i += 1) {
+    onStatus?.(`Writing the report (${i + 2}/${totalParts})...`);
+    report += emit("\n\n");
+    await writeChunk(
+      WRITER_SECTION_SYSTEM,
+      `Write ONLY the themed section that answers: ${sections[i].question}`,
+      [sections[i]],
+    );
+  }
+
+  onStatus?.(`Writing the report (${totalParts}/${totalParts})...`);
+  report += emit("\n\n");
+  await writeChunk(
+    WRITER_CLOSING_SYSTEM,
+    "Write ONLY the closing of the report now (risks, outlook, recommendations).",
+    sections.slice(-4),
+  );
+
+  // The source list is appended locally so no URL can be hallucinated.
+  const sourceList = sources
+    .slice(0, 40)
+    .map((s, i) => `${i + 1}. [${s.title}](${s.url})`)
+    .join("\n");
+  if (sourceList) {
+    const tail = `\n\n## المصادر / Sources\n${sourceList}`;
+    report += emit(tail);
+  }
 
   return { plan, sources, pages, notes, report };
 }
