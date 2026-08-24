@@ -1,20 +1,4 @@
-/** @doc Thin LLM client used by the Deep Research agent. It talks to the same
- *  chat edge function as the main chat, but with its OWN system prompt and no
- *  server-side tools, so each research stage (plan / analyse / write) is a
- *  clean, single-purpose model call. */
-
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-alibaba`;
-
-async function accessToken(): Promise<string> {
-  try {
-    const { supabase } = await import("@/integrations/supabase/client");
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.access_token) return data.session.access_token;
-  } catch {
-    /* ignore */
-  }
-  return import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
-}
+/** Browser client for the independent streaming research writer. */
 
 export interface ResearchModelCall {
   system: string;
@@ -23,7 +7,7 @@ export interface ResearchModelCall {
   /** Fires for every streamed text chunk (used by the final report writer). */
   onDelta?: (chunk: string) => void;
   signal?: AbortSignal;
-  /** Milliseconds without any byte before the call is treated as dead. */
+  /** Retained for API compatibility; reasoning calls are never timer-aborted. */
   idleTimeoutMs?: number;
 }
 
@@ -34,51 +18,21 @@ export interface ResearchModelCall {
 export async function callResearchModel({
   system,
   prompt,
-  model = "qwen-max",
+  model: _model,
   onDelta,
   signal,
-  idleTimeoutMs = 120_000,
+  idleTimeoutMs: _idleTimeoutMs,
 }: ResearchModelCall): Promise<string> {
-  const token = await accessToken();
-  const resp = await fetch(CHAT_URL, {
+  const resp = await fetch("/api/research-write", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      // The backend can override a plain system message with its own chat
-      // persona, so the stage instructions are also inlined into the user turn.
-      // Keep this wording strictly research-flavoured: support/billing vocabulary
-      // makes the backend route the turn to its help-desk answer.
-      messages: [
-        { role: "system", content: system },
-        {
-          role: "user",
-          content: [
-            "=== TASK INSTRUCTIONS ===",
-            system,
-            "",
-            "=== TASK INPUT ===",
-            prompt,
-            "",
-            "Produce the requested output only. No greeting, no emoji, no follow-up question.",
-          ].join("\n"),
-        },
-      ],
-      model,
-      chatMode: "normal",
-      searchEnabled: false,
-      computerUseEnabled: false,
-      customSystem: system,
-      availableSkills: [],
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ system, prompt }),
     signal,
   });
 
   if (!resp.ok || !resp.body) {
-    throw new Error(`research model HTTP ${resp.status}`);
+    const data = await resp.json().catch(() => null) as { error?: string } | null;
+    throw new Error(data?.error || `Research writer failed (${resp.status}).`);
   }
 
   const reader = resp.body.getReader();
@@ -86,36 +40,23 @@ export async function callResearchModel({
   let buffer = "";
   let full = "";
 
-  const idle = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  const resetIdle = () => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => idle.abort(), idleTimeoutMs);
-  };
-  resetIdle();
-
-  try {
-    while (true) {
-      const idlePromise = new Promise<never>((_, reject) => {
-        idle.signal.addEventListener("abort", () => reject(new Error("IDLE_TIMEOUT")), {
-          once: true,
-        });
-      });
-      const { done, value } = await Promise.race([reader.read(), idlePromise]);
+  while (true) {
+      const { done, value } = await reader.read();
       if (done) break;
-      resetIdle();
       buffer += decoder.decode(value, { stream: true });
       let nl: number;
       while ((nl = buffer.indexOf("\n")) !== -1) {
         let line = buffer.slice(0, nl);
         buffer = buffer.slice(nl + 1);
         if (line.endsWith("\r")) line = line.slice(0, -1);
-        if (!line.startsWith("data: ")) continue;
-        const payload = line.slice(6).trim();
+        if (!line.startsWith("data:")) continue;
+        const payload = line.slice(5).trim();
         if (payload === "[DONE]") return full;
         try {
           const parsed = JSON.parse(payload);
-          const chunk = parsed?.choices?.[0]?.delta?.content as string | undefined;
+          const chunk = parsed?.type === "response.output_text.delta"
+            ? String(parsed?.delta ?? "")
+            : "";
           if (chunk) {
             full += chunk;
             onDelta?.(chunk);
@@ -124,9 +65,6 @@ export async function callResearchModel({
           /* ignore malformed frames */
         }
       }
-    }
-  } finally {
-    if (timer) clearTimeout(timer);
   }
   return full;
 }
