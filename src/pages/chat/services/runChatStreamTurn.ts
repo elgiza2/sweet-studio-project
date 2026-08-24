@@ -296,6 +296,7 @@ export async function runChatStreamTurn(opts: RunChatStreamTurnOptions): Promise
           ...last,
           content: nextContent,
           products: last.products ?? streamedProducts,
+          ...(isDeepResearch ? { mode: "deep-research" as const } : {}),
         };
         return next;
       }
@@ -306,6 +307,7 @@ export async function runChatStreamTurn(opts: RunChatStreamTurnOptions): Promise
           content: nextContent,
           products: streamedProducts,
           clientId: `assistant-${localTurnId}`,
+          ...(isDeepResearch ? { mode: "deep-research" as const } : {}),
         },
       ];
     });
@@ -1075,7 +1077,11 @@ export async function runChatStreamTurn(opts: RunChatStreamTurnOptions): Promise
               },
             ];
           const next = prev.slice();
-          next[targetIndex] = { ...last, content: assistantContent };
+          next[targetIndex] = {
+            ...last,
+            content: assistantContent,
+            ...(isDeepResearch ? { mode: "deep-research" as const } : {}),
+          };
           return next;
         });
       }
