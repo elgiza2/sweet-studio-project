@@ -1,0 +1,158 @@
+/* ─────────────────────────────────────────────────────────────
+   Manus Theme — desktop chat shell.
+   Scoped to [data-shell="manus"]. Activates only at md+.
+
+   Direction: pure-black canvas + warm ink-light foreground, Instrument
+   Serif accent headings, hairline borders. Light/cream palette removed —
+   the app is dark-only, so this shell inherits the global dark tokens.
+   ───────────────────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  [data-shell="manus"] {
+    /* Keep the subtree aligned with the global dark tokens so every
+       shadcn component (cards, buttons, popovers, inputs) matches. */
+    --background: 0 0% 0%;
+    --foreground: 40 15% 94%;
+    --card: 0 0% 7%;
+    --card-foreground: 40 15% 94%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 40 15% 94%;
+    --primary: 40 15% 94%;
+    --primary-foreground: 0 0% 7%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 40 15% 94%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 40 6% 62%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 40 15% 94%;
+    --border: 43 15% 18%;
+    --input: 43 15% 18%;
+    --ring: 40 15% 94%;
+    --radius: 0.75rem;
+
+    background-color: hsl(0 0% 0%);
+    color: hsl(40 15% 94%);
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Hide the mobile blue gradient on desktop when manus theme is active */
+  [data-shell="manus"] .chat-mobile-blue-bg,
+  [data-shell="manus"] .chat-ambient-glow {
+    display: none !important;
+  }
+
+  /* Sidebar — match the black canvas */
+  [data-shell="manus"] aside.bg-sidebar,
+  [data-shell="manus"] [data-sidebar] {
+    background-color: hsl(0 0% 0%) !important;
+    color: hsl(40 15% 94%) !important;
+    border-right-color: hsl(43 15% 18%) !important;
+  }
+  [data-shell="manus"] aside.bg-sidebar * {
+    border-color: hsl(43 15% 18%);
+  }
+
+  /* Editorial serif treatment for greetings and large display text */
+  [data-shell="manus"] h1,
+  [data-shell="manus"] h2,
+  [data-shell="manus"] .manus-serif,
+  [data-shell="manus"] [class*="text-3xl"],
+  [data-shell="manus"] [class*="text-4xl"],
+  [data-shell="manus"] [class*="text-5xl"] {
+    font-family: "Instrument Serif", ui-serif, Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* Mono caption helper */
+  [data-shell="manus"] .manus-mono,
+  [data-shell="manus"] code,
+  [data-shell="manus"] kbd {
+    font-family: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo,
+      Consolas, monospace;
+  }
+
+  /* Hairline borders globally inside the shell */
+  [data-shell="manus"] .border,
+  [data-shell="manus"] .border-t,
+  [data-shell="manus"] .border-b,
+  [data-shell="manus"] .border-l,
+  [data-shell="manus"] .border-r,
+  [data-shell="manus"] .border-border,
+  [data-shell="manus"] .border-border\/70,
+  [data-shell="manus"] .border-border\/50,
+  [data-shell="manus"] .border-border\/40,
+  [data-shell="manus"] .border-border\/30 {
+    border-color: hsl(43 15% 18%);
+  }
+
+  /* Composer card — elevated dark surface on black */
+  [data-shell="manus"] .composer-card,
+  [data-shell="manus"] .chat-composer-frame {
+    background: hsl(0 0% 7%) !important;
+    border: 1px solid hsl(43 15% 18%) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.6);
+  }
+  [data-shell="manus"] .composer-card textarea,
+  [data-shell="manus"] .chat-composer-frame textarea {
+    color: hsl(40 15% 94%) !important;
+    caret-color: hsl(40 15% 94%);
+  }
+  [data-shell="manus"] .composer-card textarea::placeholder {
+    color: hsl(40 6% 55%) !important;
+  }
+
+  /* User message bubble — light ink on dark canvas (high contrast) */
+  [data-shell="manus"] [data-role="user"],
+  [data-shell="manus"] .user-bubble {
+    background: hsl(0 0% 14%) !important;
+    color: hsl(40 15% 94%) !important;
+  }
+
+  /* Soft scrollbars matching the dark palette */
+  [data-shell="manus"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+  [data-shell="manus"] ::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 22%);
+    border-radius: 999px;
+    border: 2px solid hsl(0 0% 0%);
+  }
+  [data-shell="manus"] ::-webkit-scrollbar-track { background: transparent; }
+
+  /* Floating Megsy "computer" canvas card — right side of the workspace */
+  [data-shell="manus"] .manus-canvas {
+    background: hsl(0 0% 7%);
+    border: 1px solid hsl(43 15% 18%);
+    border-radius: 18px;
+    box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Pill running indicator */
+  [data-shell="manus"] .manus-running-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: hsl(0 0% 12%);
+    border: 1px solid hsl(43 15% 18%);
+    border-radius: 999px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: hsl(40 6% 62%);
+  }
+  [data-shell="manus"] .manus-running-pill::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: #10b981;
+    animation: manus-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes manus-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.85); }
+}

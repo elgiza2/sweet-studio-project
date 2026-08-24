@@ -1,0 +1,771 @@
+/* Light theme overrides loaded after chat/deferred styles.
+   Keep this file focused on core app surfaces that were authored as dark-only. */
+
+html[data-theme="light"] body,
+html[data-theme="light"] #root {
+  background: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] #root > * {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-theme="light"] [data-shell="manus"],
+html[data-theme="light"] [data-shell="manus"][data-skin="claude"] {
+  --background: 36 40% 98%;
+  --foreground: 222 22% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 22% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 22% 12%;
+  --primary: 222 18% 13%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 18% 94%;
+  --secondary-foreground: 222 22% 12%;
+  --muted: 220 16% 94%;
+  --muted-foreground: 220 9% 40%;
+  --accent: 220 18% 92%;
+  --accent-foreground: 222 22% 12%;
+  --border: 220 16% 84%;
+  --input: 220 16% 84%;
+  --ring: 222 22% 12%;
+  --sidebar: 0 0% 100%;
+  --sidebar-background: 0 0% 100%;
+  --chat-claude-bg: hsl(var(--background));
+  --chat-reference-bg: hsl(var(--card));
+  --chat-claude-fg: hsl(var(--foreground));
+  --chat-claude-muted: hsl(var(--muted-foreground));
+  --chat-claude-composer: hsl(var(--card));
+  --chat-claude-control: hsl(var(--card));
+  --chat-claude-border: hsl(var(--border));
+  background: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .chat-surface-dark,
+html[data-theme="light"] [data-shell="manus"] .chat-surface-dark.bg-black,
+html[data-theme="light"] [data-shell="manus"] [data-chat-main="true"],
+html[data-theme="light"] [data-shell="manus"] [data-chat-main="true"][data-chat-empty="true"],
+html[data-theme="light"] .theme-fixed.bg-black,
+html[data-theme="light"] .theme-fixed .bg-black {
+  background: hsl(var(--background)) !important;
+  background-color: hsl(var(--background)) !important;
+  background-image: none !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] aside[data-chat-sidebar="true"],
+html[data-theme="light"] [data-shell="manus"] [data-sidebar],
+html[data-theme="light"] [data-shell="manus"] aside.bg-sidebar {
+  background: hsl(var(--sidebar-background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .chat-surface-dark,
+html[data-theme="light"] [data-shell="manus"] .chat-surface-dark * {
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border) / 0.7);
+}
+
+html[data-theme="light"] [data-shell="manus"] .text-muted-foreground,
+html[data-theme="light"] [data-shell="manus"] [class*="text-muted-foreground"],
+html[data-theme="light"] [data-shell="manus"] .text-white\/90,
+html[data-theme="light"] [data-shell="manus"] .text-white\/80,
+html[data-theme="light"] [data-shell="manus"] .text-white\/70,
+html[data-theme="light"] [data-shell="manus"] .text-white\/60,
+html[data-theme="light"] [data-shell="manus"] .text-white\/50,
+html[data-theme="light"] [data-shell="manus"] .text-white\/40 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .text-white,
+html[data-theme="light"] [data-shell="manus"] [class*="text-brand-parchment"],
+html[data-theme="light"] .text-brand-parchment {
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .chat-composer-frame,
+html[data-theme="light"] [data-shell="manus"] .composer-card,
+html[data-theme="light"] [data-shell="manus"] [data-testid="modes-toggle"],
+html[data-theme="light"] [data-shell="manus"] [data-plus-trigger],
+html[data-theme="light"] [data-shell="manus"] [data-plus-menu],
+html[data-theme="light"] [data-radix-popper-content-wrapper] [data-tier-menu],
+html[data-theme="light"] [data-radix-popper-content-wrapper] [data-media-settings-menu],
+html[data-theme="light"] [data-radix-popper-content-wrapper] .unified-menu-surface,
+html[data-theme="light"] .unified-menu-surface {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 12px 30px hsl(var(--foreground) / 0.08) !important;
+  backdrop-filter: blur(18px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+}
+
+/* Mobile bottom sheet (plus menu) — deferred.css forces dark Claude colors with !important */
+html[data-theme="light"] .mobile-plus-glass-menu,
+html[data-theme="light"] .mobile-plus-glass-menu * {
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] .mobile-plus-glass-menu {
+  background: hsl(var(--card)) !important;
+  border-top: 1px solid hsl(var(--border)) !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  box-shadow: 0 -10px 40px hsl(var(--foreground) / 0.09) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+}
+
+html[data-theme="light"] .mobile-plus-glass-menu .gemini-glass-tile {
+  background: hsl(var(--muted)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+html[data-theme="light"] .mobile-plus-glass-menu .gemini-glass-tile:active {
+  background: hsl(var(--foreground) / 0.08) !important;
+}
+
+html[data-theme="light"] .mobile-plus-glass-menu [data-no-neo]:active {
+  background: hsl(var(--foreground) / 0.06) !important;
+}
+
+
+html[data-theme="light"] [data-shell="manus"] .chat-composer-frame textarea,
+html[data-theme="light"] [data-shell="manus"] .chat-composer-frame input,
+html[data-theme="light"] [data-shell="manus"] .composer-card textarea,
+html[data-theme="light"] [data-shell="manus"] .composer-card input {
+  color: hsl(var(--foreground)) !important;
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+  caret-color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .chat-composer-frame textarea::placeholder,
+html[data-theme="light"] [data-shell="manus"] .chat-composer-frame input::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+  -webkit-text-fill-color: hsl(var(--muted-foreground)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .user-bubble,
+html[data-theme="light"] [data-shell="manus"] [data-role="user"],
+html[data-theme="light"] [data-shell="manus"] [data-message-role="user"] .message-bubble,
+html[data-theme="light"] [data-shell="manus"] .chat-bubble-user {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-color: hsl(var(--primary) / 0.25) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .user-bubble *,
+html[data-theme="light"] [data-shell="manus"] [data-role="user"] *,
+html[data-theme="light"] [data-shell="manus"] [data-message-role="user"] .message-bubble * {
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .bg-white\/10,
+html[data-theme="light"] [data-shell="manus"] .bg-white\/5,
+html[data-theme="light"] [data-shell="manus"] .bg-white\/\[0\.03\] {
+  background-color: hsl(var(--foreground) / 0.06) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .bg-black,
+html[data-theme="light"] [data-shell="manus"] .bg-black\/95,
+html[data-theme="light"] [data-shell="manus"] .bg-black\/90,
+html[data-theme="light"] [data-shell="manus"] .bg-black\/80,
+html[data-theme="light"] [data-shell="manus"] .bg-black\/60,
+html[data-theme="light"] [data-shell="manus"] .bg-black\/40 {
+  background-color: hsl(var(--background)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .prose-chat,
+html[data-theme="light"] [data-shell="manus"] .prose-chat * {
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] [data-shell="manus"] .chat-aurora,
+html[data-theme="light"] [data-shell="manus"] .chat-mobile-blue-bg,
+html[data-theme="light"] [data-shell="manus"] .dark-veil-css {
+  display: none !important;
+}
+
+html[data-theme="light"] .core-light-page,
+html[data-theme="light"] .core-light-page header,
+html[data-theme="light"] .core-light-page main {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] .core-light-page .bg-black,
+html[data-theme="light"] .core-light-page .bg-black\/95 {
+  background-color: hsl(var(--background)) !important;
+}
+
+html[data-theme="light"] .core-light-page .border-white\/10,
+html[data-theme="light"] .core-light-page .border-surface-4 {
+  border-color: hsl(var(--border)) !important;
+}
+
+html[data-theme="light"] .core-light-page .bg-surface-1,
+html[data-theme="light"] .core-light-page .bg-surface-2,
+html[data-theme="light"] .core-light-page .bg-surface-3 {
+  background-color: hsl(var(--card)) !important;
+}
+
+html[data-theme="light"] .core-light-page .text-brand-muted {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+html[data-theme="light"] .core-light-page button:hover,
+html[data-theme="light"] .core-light-page a:hover {
+  color: hsl(var(--primary)) !important;
+}
+
+/* ============================================================
+   GLOBAL LIGHT-MODE NEUTRALIZERS
+   Catch hardcoded dark Tailwind utilities across chat, sidebar,
+   library, settings and any other core screen. Scoped strictly
+   to `html[data-theme="light"]` so marketing/landing (which pin
+   data-theme="dark" locally) stay untouched.
+   ============================================================ */
+
+html[data-theme="light"] .bg-black,
+html[data-theme="light"] .bg-black\/95,
+html[data-theme="light"] .bg-black\/90,
+html[data-theme="light"] .bg-black\/80,
+html[data-theme="light"] .bg-black\/70,
+html[data-theme="light"] .bg-black\/60,
+html[data-theme="light"] .bg-black\/50,
+html[data-theme="light"] .bg-black\/40,
+html[data-theme="light"] .bg-black\/30,
+html[data-theme="light"] .bg-black\/20,
+html[data-theme="light"] .bg-black\/10 {
+  background-color: hsl(var(--background)) !important;
+}
+
+html[data-theme="light"] .bg-neutral-900,
+html[data-theme="light"] .bg-neutral-950,
+html[data-theme="light"] .bg-zinc-900,
+html[data-theme="light"] .bg-zinc-950,
+html[data-theme="light"] .bg-slate-900,
+html[data-theme="light"] .bg-slate-950,
+html[data-theme="light"] .bg-gray-900,
+html[data-theme="light"] .bg-gray-950,
+html[data-theme="light"] .bg-stone-900,
+html[data-theme="light"] .bg-stone-950 {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] .bg-neutral-800,
+html[data-theme="light"] .bg-zinc-800,
+html[data-theme="light"] .bg-slate-800,
+html[data-theme="light"] .bg-gray-800 {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* White text on light bg is invisible — flip to foreground unless
+   the element is on a filled primary/coloured surface (user bubble). */
+html[data-theme="light"] .text-white:not([data-role="user"]):not(.user-bubble):not([data-message-role="user"] *):not(.bg-primary):not(.bg-primary *) {
+  color: hsl(var(--foreground)) !important;
+}
+html[data-theme="light"] .text-white\/90,
+html[data-theme="light"] .text-white\/80,
+html[data-theme="light"] .text-white\/70,
+html[data-theme="light"] .text-white\/60,
+html[data-theme="light"] .text-white\/50,
+html[data-theme="light"] .text-white\/40,
+html[data-theme="light"] .text-white\/30 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+html[data-theme="light"] .border-white\/5,
+html[data-theme="light"] .border-white\/10,
+html[data-theme="light"] .border-white\/15,
+html[data-theme="light"] .border-white\/20 {
+  border-color: hsl(var(--border)) !important;
+}
+
+html[data-theme="light"] .bg-white\/5,
+html[data-theme="light"] .bg-white\/10,
+html[data-theme="light"] .bg-white\/15,
+html[data-theme="light"] .bg-white\/20 {
+  background-color: hsl(var(--foreground) / 0.05) !important;
+}
+
+/* Sidebar (shadcn) — sidebar tokens are already themed via HSL, but
+   some sidebar variants apply .bg-sidebar with hardcoded values. */
+html[data-theme="light"] [data-sidebar="sidebar"],
+html[data-theme="light"] aside[data-sidebar],
+html[data-theme="light"] .bg-sidebar {
+  background-color: hsl(var(--sidebar-background, var(--card))) !important;
+  color: hsl(var(--sidebar-foreground, var(--foreground))) !important;
+  border-color: hsl(var(--sidebar-border, var(--border))) !important;
+}
+html[data-theme="light"] [data-sidebar="sidebar"] *,
+html[data-theme="light"] aside[data-sidebar] * {
+  border-color: hsl(var(--sidebar-border, var(--border)));
+}
+html[data-theme="light"] [data-sidebar="menu-button"][data-active="true"] {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Brand tokens used across chat/library */
+html[data-theme="light"] .text-brand-parchment,
+html[data-theme="light"] .text-brand-cream,
+html[data-theme="light"] .text-brand-ivory {
+  color: hsl(var(--foreground)) !important;
+}
+html[data-theme="light"] .text-brand-muted,
+html[data-theme="light"] .text-brand-dim {
+  color: hsl(var(--muted-foreground)) !important;
+}
+html[data-theme="light"] .bg-surface-1,
+html[data-theme="light"] .bg-surface-2,
+html[data-theme="light"] .bg-surface-3,
+html[data-theme="light"] .bg-surface-4 {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+html[data-theme="light"] .border-surface-4,
+html[data-theme="light"] .border-surface-3,
+html[data-theme="light"] .border-surface-2 {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Chat sidebar (conversations list) inside manus shell */
+html[data-theme="light"] [data-chat-sidebar="true"],
+html[data-theme="light"] [data-chat-sidebar="true"] * {
+  color: hsl(var(--foreground));
+}
+html[data-theme="light"] [data-chat-sidebar="true"] .text-white\/60,
+html[data-theme="light"] [data-chat-sidebar="true"] .text-white\/50 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Chat message bubbles — assistant on transparent, user on primary */
+html[data-theme="light"] [data-message-role="assistant"] .message-bubble,
+html[data-theme="light"] [data-role="assistant"] {
+  background: transparent !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Composer & control chips */
+html[data-theme="light"] .chat-composer-frame,
+html[data-theme="light"] .composer-card {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+html[data-theme="light"] .chat-composer-frame *,
+html[data-theme="light"] .composer-card * {
+  border-color: hsl(var(--border));
+}
+
+/* Model / plus / mode buttons */
+html[data-theme="light"] [data-plus-trigger],
+html[data-theme="light"] [data-testid="modes-toggle"] {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+/* Model / tier trigger in light theme: clean pill with visible border. */
+html[data-theme="light"] [data-tier-trigger],
+html[data-theme="light"] [data-model-trigger] {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.28) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+  color: #000 !important;
+}
+html[data-theme="light"] [data-tier-trigger]:hover,
+html[data-theme="light"] [data-model-trigger]:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.45) !important;
+}
+html[data-theme="light"] [data-tier-trigger] > [data-model-label] {
+  display: inline-block !important;
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+
+/* Popover / dropdown surfaces */
+html[data-theme="light"] [data-radix-popper-content-wrapper] > * {
+  background: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Cards commonly used in chat responses */
+html[data-theme="light"] .prose-chat pre,
+html[data-theme="light"] .prose-chat code {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Library page cards */
+html[data-theme="light"] [data-library-card],
+html[data-theme="light"] .library-card {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+/* Chat landing decorative background — hide the dimming video + veil so
+   the light background actually reads as light. */
+html[data-theme="light"] [data-shell="manus"] > video,
+html[data-theme="light"] [data-shell="manus"] > div[aria-hidden][style*="rgba(0,0,0"],
+html[data-theme="light"] [data-shell="manus"] > div[aria-hidden][style*="rgba(0, 0, 0"] {
+  display: none !important;
+}
+
+/* Landing greeting text/heading */
+html[data-theme="light"] [data-shell="manus"] h1,
+html[data-theme="light"] [data-shell="manus"] h2 {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Kill dark WavyBackground canvas on chat greeting in light theme */
+html[data-theme="light"] .pointer-events-none.fixed.inset-0.z-\[1\].hidden.h-screen.md\:flex,
+html[data-theme="light"] canvas.absolute.inset-0.z-0 {
+  display: none !important;
+}
+
+/* ============================================================
+   BLANKET NEUTRALIZERS FOR HARDCODED HEX COLORS (LIGHT THEME)
+   Catches the many pages that use arbitrary bg-[#..] / text-[#..]
+   / border-[#..] classes so they blend into the light surface.
+   ============================================================ */
+html[data-theme="light"] .bg-\[\#000\],
+html[data-theme="light"] .bg-\[\#000000\],
+html[data-theme="light"] .bg-\[\#0d0d0d\],
+html[data-theme="light"] .bg-\[\#111\],
+html[data-theme="light"] .bg-\[\#111112\],
+html[data-theme="light"] .bg-\[\#141414\],
+html[data-theme="light"] .bg-\[hsl\(var\(--background\)\)\],
+html[data-theme="light"] .bg-\[\#1C1C1E\],
+html[data-theme="light"] .bg-\[\#1c1c1e\],
+html[data-theme="light"] .bg-\[\#202020\],
+html[data-theme="light"] .bg-\[\#212124\],
+html[data-theme="light"] .bg-\[\#2a2a2a\] {
+  background-color: hsl(var(--card)) !important;
+}
+
+html[data-theme="light"] [class*="bg-\[hsl\(var\(--background\)\)\]\/40"],
+html[data-theme="light"] [class*="bg-\[hsl\(var\(--background\)\)\]\/60"],
+html[data-theme="light"] [class*="bg-black\/40"],
+html[data-theme="light"] [class*="bg-black\/50"],
+html[data-theme="light"] [class*="bg-black\/60"] {
+  background-color: hsl(var(--muted) / 0.5) !important;
+}
+
+html[data-theme="light"] .text-\[\#f5f5f5\],
+html[data-theme="light"] .text-\[\#EDE4D8\],
+html[data-theme="light"] .text-\[\#ede4d8\],
+html[data-theme="light"] .text-\[\#e5e5e5\],
+html[data-theme="light"] .text-\[\#fafafa\],
+html[data-theme="light"] .text-\[\#ffffff\],
+html[data-theme="light"] .text-\[\#fff\] {
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] .text-\[\#a0a0a0\],
+html[data-theme="light"] .text-\[\#6b6b6b\],
+html[data-theme="light"] .text-\[\#8a8a8a\],
+html[data-theme="light"] .text-\[\#999\],
+html[data-theme="light"] .text-\[\#c0c0c0\] {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+html[data-theme="light"] .border-\[hsl\(var\(--background\)\)\],
+html[data-theme="light"] .border-\[\#2a2a2a\],
+html[data-theme="light"] .border-\[\#333\],
+html[data-theme="light"] .border-\[\#3A3A3C\],
+html[data-theme="light"] .border-\[\#0d0d0d\],
+html[data-theme="light"] .border-\[\#f5f5f5\] {
+  border-color: hsl(var(--border)) !important;
+}
+
+html[data-theme="light"] .placeholder\:text-\[\#6b6b6b\]::placeholder,
+html[data-theme="light"] input[class*="placeholder:text-[#"]::placeholder,
+html[data-theme="light"] textarea[class*="placeholder:text-[#"]::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Buttons using bg-[#f5f5f5] text-black are already light — keep them */
+
+/* Sidebar (desktop) — force it fully light so it never appears as a dark
+   rail behind light content. */
+html[data-theme="light"] [data-sidebar],
+html[data-theme="light"] [data-sidebar="sidebar"],
+html[data-theme="light"] aside[data-slot="sidebar"],
+html[data-theme="light"] nav[data-slot="sidebar"],
+html[data-theme="light"] .app-sidebar,
+html[data-theme="light"] .app-sidebar * {
+  background-color: transparent;
+}
+html[data-theme="light"] [data-sidebar="sidebar"],
+html[data-theme="light"] aside[data-slot="sidebar"] {
+  background-color: hsl(var(--sidebar-background, var(--background))) !important;
+  color: hsl(var(--sidebar-foreground, var(--foreground))) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Settings background image / decorative overlay — hide in light mode */
+html[data-theme="light"] [data-settings-bg],
+html[data-theme="light"] .settings-hero-bg,
+html[data-theme="light"] .settings-backdrop,
+html[data-theme="light"] .pyramid-bg {
+  display: none !important;
+}
+
+/* Ambient / aurora dim overlays used across pages */
+html[data-theme="light"] .ambient-bg,
+html[data-theme="light"] [class*="ambient-"],
+html[data-theme="light"] [aria-hidden="true"][style*="rgb(0, 0, 0)"],
+html[data-theme="light"] [aria-hidden="true"][style*="rgba(0, 0, 0"] {
+  background: transparent !important;
+}
+
+/* Chat/library shells with min-h + bg-black inline classes */
+html[data-theme="light"] div[class*="min-h-"][class*="bg-black"],
+html[data-theme="light"] div[class*="min-h-screen"][class*="bg-black"] {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* ============================================================
+   MOBILE SIDEBAR — force light tokens on inline-styled panel
+   AppSidebar uses inline styles with var(--page-bg) and hsl(var(--brand-parchment)).
+   Override at the panel scope so mobile drawer follows light theme.
+   ============================================================ */
+html[data-theme="light"] [data-app-sidebar-panel="true"] {
+  --page-bg: hsl(var(--background)) !important;
+  --brand-parchment: var(--foreground) !important;
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  box-shadow: inset -1px 0 0 hsl(var(--border)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-image: none !important;
+}
+html[data-theme="light"] [data-app-sidebar-panel="true"] * {
+  color: hsl(var(--foreground)) !important;
+}
+html[data-theme="light"] [data-app-sidebar-panel="true"] .text-muted-foreground,
+html[data-theme="light"] [data-app-sidebar-panel="true"] .text-muted-foreground\/70,
+html[data-theme="light"] [data-app-sidebar-panel="true"] [class*="text-foreground/"],
+html[data-theme="light"] [data-app-sidebar-panel="true"] [class*="text-white/"] {
+  color: hsl(var(--muted-foreground)) !important;
+}
+html[data-theme="light"] [data-app-sidebar-panel="true"] svg {
+  color: hsl(var(--foreground)) !important;
+  stroke: currentColor !important;
+}
+/* Active/hover items */
+html[data-theme="light"] [data-app-sidebar-panel="true"] button:hover {
+  background-color: hsl(var(--accent) / 0.5) !important;
+}
+
+/* ============================================================
+   SETTINGS PAGES — force light backgrounds & readable text
+   Many settings pages use hardcoded #0d0d0d / hsl(var(--background)) / #08080a /
+   inline styles or the "brand-parchment" token, all of which stay
+   dark until we intercept them here.
+   ============================================================ */
+
+/* Any element whose inline style contains a hardcoded dark hex */
+html[data-theme="light"] [style*="#0d0d0d"],
+html[data-theme="light"] [style*="#0a0a0a"],
+html[data-theme="light"] [style*="#08080a"],
+html[data-theme="light"] [style*="#060607"],
+html[data-theme="light"] [style*="#0b0b0d"],
+html[data-theme="light"] [style*="#111112"],
+html[data-theme="light"] [style*="hsl(var(--background))"],
+html[data-theme="light"] [style*="#1C1C1E"],
+html[data-theme="light"] [style*="#2a2a2a"],
+html[data-theme="light"] [style*="#000000"] {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Settings pages routes: force light surface + neutralize dark chrome */
+html[data-theme="light"] main:has([data-settings-shell]),
+html[data-theme="light"] [data-settings-shell="true"],
+html[data-theme="light"] [data-desktop-settings="true"],
+html[data-theme="light"] [data-coffee-profile="true"] {
+  background: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Anything painted with brand-parchment text becomes foreground */
+html[data-theme="light"] [class*="text-brand-parchment"],
+html[data-theme="light"] [class*="text-[#EDE4D8]"],
+html[data-theme="light"] [class*="text-[#ede4d8]"],
+html[data-theme="light"] [class*="text-[#f5f5f5]"],
+html[data-theme="light"] [class*="text-[#f5f2ea]"],
+html[data-theme="light"] [class*="text-[#faf7ee]"],
+html[data-theme="light"] [class*="text-[#f4ebde]"],
+html[data-theme="light"] [class*="text-[#e8dfc6]"],
+html[data-theme="light"] [class*="text-[#d8d2c1]"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Settings cards / rows with dark hex backgrounds */
+html[data-theme="light"] .bg-\[\#08080a\],
+html[data-theme="light"] .bg-\[\#0a0a0a\],
+html[data-theme="light"] .bg-\[\#0a0a0b\],
+html[data-theme="light"] .bg-\[\#0b0b0d\],
+html[data-theme="light"] .bg-\[\#0d0d0d\],
+html[data-theme="light"] .bg-\[\#111112\],
+html[data-theme="light"] .bg-\[hsl\(var\(--background\)\)\],
+html[data-theme="light"] .bg-\[\#1C1C1E\],
+html[data-theme="light"] .bg-\[\#2a2a2a\],
+html[data-theme="light"] .bg-\[\#060607\] {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] .border-\[\#0d0d0d\],
+html[data-theme="light"] .border-\[hsl\(var\(--background\)\)\],
+html[data-theme="light"] .border-\[\#2a2a2a\],
+html[data-theme="light"] .border-\[\#3A3A3C\] {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Force any text-white nested inside a light-mode surface back to foreground
+   except where it's on a colored button (primary/gradient CTAs keep white). */
+html[data-theme="light"] .bg-card .text-white,
+html[data-theme="light"] .bg-background .text-white,
+html[data-theme="light"] [data-settings-shell] .text-white,
+html[data-theme="light"] [data-coffee-profile] .text-white {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* SVG icons using currentColor pick up parent color; ensure they inherit */
+html[data-theme="light"] [data-settings-shell] svg,
+html[data-theme="light"] [data-coffee-profile] svg {
+  color: inherit;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Light theme — fix for settings sub-pages (Help, Contact,
+   Support, Privacy, Capabilities, SystemStatus, etc.) authored
+   with hardcoded near-black hex utilities + Tailwind `bg-black`.
+   Scoped to body.ms-theme (mobile settings routes) and the
+   generic /settings pathname so the whole page turns light.
+   ───────────────────────────────────────────────────────────── */
+html[data-theme="light"] body.ms-theme,
+html[data-theme="light"] body.ms-theme #root,
+html[data-theme="light"] body.ms-theme main {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] body.ms-theme .bg-black,
+html[data-theme="light"] body.ms-theme [class*="bg-black/"],
+html[data-theme="light"] body.ms-theme .bg-\[\#0d0d0d\],
+html[data-theme="light"] body.ms-theme .bg-\[\#111112\],
+html[data-theme="light"] body.ms-theme .bg-\[hsl\(var\(--background\)\)\],
+html[data-theme="light"] body.ms-theme .bg-\[\#1C1C1E\],
+html[data-theme="light"] body.ms-theme .bg-\[\#1c1c1e\],
+html[data-theme="light"] body.ms-theme [class*="bg-\[hsl\(var\(--background\)\)\]\/"],
+html[data-theme="light"] body.ms-theme [class*="bg-\[\#0d0d0d\]\/"] {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+/* Full page wrappers use bg-black — map to page background, not card */
+html[data-theme="light"] body.ms-theme > *,
+html[data-theme="light"] body.ms-theme .min-h-screen.bg-black,
+html[data-theme="light"] body.ms-theme .min-h-\[100dvh\].bg-black {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] body.ms-theme .text-white,
+html[data-theme="light"] body.ms-theme .text-\[\#f5f5f5\],
+html[data-theme="light"] body.ms-theme .text-\[\#EDE4D8\],
+html[data-theme="light"] body.ms-theme [class*="text-\[\#EDE4D8\]\/"],
+html[data-theme="light"] body.ms-theme [class*="text-white\/"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] body.ms-theme .text-\[\#a0a0a0\],
+html[data-theme="light"] body.ms-theme .text-\[\#6b6b6b\],
+html[data-theme="light"] body.ms-theme .text-\[color\:var\(--amb-cream-dim\)\] {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+html[data-theme="light"] body.ms-theme .border-\[hsl\(var\(--background\)\)\],
+html[data-theme="light"] body.ms-theme .border-\[\#2a2a2a\],
+html[data-theme="light"] body.ms-theme .border-\[\#333\],
+html[data-theme="light"] body.ms-theme [class*="border-white\/"] {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* The single "primary" light CTA button used on SettingsContactPage
+   (bg-[#f5f5f5] text-black) should invert to a dark pill in light mode
+   so it stays visible against the light page. */
+html[data-theme="light"] body.ms-theme .bg-\[\#f5f5f5\] {
+  background-color: hsl(var(--foreground)) !important;
+  color: hsl(var(--background)) !important;
+  border-color: hsl(var(--foreground)) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Light theme — chat surface: remap raw text-white / white-alpha
+   text utilities so message content, headers, and menus stay
+   readable on the light canvas.
+   ───────────────────────────────────────────────────────────── */
+html[data-theme="light"] [data-chat-main="true"] .text-white,
+html[data-theme="light"] .chat-surface-dark .text-white,
+html[data-theme="light"] [data-chat-main="true"] [class*="text-white\/"],
+html[data-theme="light"] .chat-surface-dark [class*="text-white\/"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme="light"] [data-chat-main="true"] .text-\[\#f5f5f5\],
+html[data-theme="light"] [data-chat-main="true"] .text-\[\#EDE4D8\],
+html[data-theme="light"] .chat-surface-dark .text-\[\#f5f5f5\],
+html[data-theme="light"] .chat-surface-dark .text-\[\#EDE4D8\] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Preserve intentional white text on saturated CTA/button backgrounds
+   (gradients, primary, destructive) that would otherwise become
+   dark-on-dark after the sweep above. */
+html[data-theme="light"] [data-chat-main="true"] .bg-primary .text-white,
+html[data-theme="light"] [data-chat-main="true"] .bg-destructive .text-white,
+html[data-theme="light"] [data-chat-main="true"] [class*="bg-gradient"] .text-white,
+html[data-theme="light"] [data-chat-main="true"] [class*="from-"] .text-white,
+html[data-theme="light"] .chat-surface-dark .bg-primary .text-white,
+html[data-theme="light"] .chat-surface-dark .bg-destructive .text-white,
+html[data-theme="light"] .chat-surface-dark [class*="bg-gradient"] .text-white,
+html[data-theme="light"] .chat-surface-dark [class*="from-"] .text-white {
+  color: #ffffff !important;
+}
+
+/* Same-element CTAs (bg-gradient / from-* / bg-primary / bg-destructive
+   combined with text-white on the same element). Preserve white text. */
+html[data-theme="light"] [data-chat-main="true"] .text-white[class*="bg-gradient"],
+html[data-theme="light"] [data-chat-main="true"] .text-white[class*="from-"],
+html[data-theme="light"] [data-chat-main="true"] .text-white.bg-primary,
+html[data-theme="light"] [data-chat-main="true"] .text-white.bg-destructive,
+html[data-theme="light"] .chat-surface-dark .text-white[class*="bg-gradient"],
+html[data-theme="light"] .chat-surface-dark .text-white[class*="from-"],
+html[data-theme="light"] .chat-surface-dark .text-white.bg-primary,
+html[data-theme="light"] .chat-surface-dark .text-white.bg-destructive,
+html[data-theme="light"] body.ms-theme .text-white[class*="bg-gradient"],
+html[data-theme="light"] body.ms-theme .text-white[class*="from-"],
+html[data-theme="light"] body.ms-theme .text-white.bg-primary,
+html[data-theme="light"] body.ms-theme .text-white.bg-destructive {
+  color: #ffffff !important;
+}

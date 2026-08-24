@@ -1,0 +1,279 @@
+/* ============================================================
+   MOBILE SETTINGS THEME — Pure black + clean glass
+   Scoped under `body.ms-theme` so it only affects mobile
+   settings pages (toggled by <MobileSettingsTheme /> in App).
+   Matches the chat composer surface: faint translucent fill,
+   subtle inset highlight, and a soft drop shadow.
+   ============================================================ */
+
+body.ms-theme {
+  --ms-bg: hsl(var(--background));
+  --ms-bg-2: hsl(var(--card));
+  --ms-accent: hsl(var(--foreground) / 0.14);
+  --ms-accent-2: hsl(var(--foreground) / 0.08);
+  --ms-text: hsl(var(--foreground));
+  --ms-text-soft: hsl(var(--muted-foreground));
+
+  background: var(--ms-bg) !important;
+  background-attachment: fixed;
+  color: var(--ms-text);
+}
+
+html[data-theme="light"] body.ms-theme {
+  --ms-bg: hsl(var(--background));
+  --ms-bg-2: hsl(var(--card));
+  --ms-accent: hsl(var(--foreground) / 0.10);
+  --ms-accent-2: hsl(var(--foreground) / 0.06);
+  --ms-text: hsl(var(--foreground));
+  --ms-text-soft: hsl(var(--muted-foreground));
+}
+
+@media (max-width: 767px) {
+  body.ms-theme *,
+  body.ms-theme *::before,
+  body.ms-theme *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 150ms !important;
+  }
+}
+
+body.ms-theme .ms-root,
+body.ms-theme [data-ms-page] {
+  background: transparent !important;
+}
+
+body.ms-theme .text-foreground {
+  color: var(--ms-text) !important;
+}
+body.ms-theme .text-muted-foreground {
+  color: var(--ms-text-soft) !important;
+}
+
+/* Header */
+body.ms-theme .ios-header {
+  background: hsl(var(--foreground) / 0.05) !important;
+  -webkit-backdrop-filter: saturate(170%) blur(22px);
+  backdrop-filter: saturate(170%) blur(22px);
+  border-bottom: 1px solid hsl(var(--foreground) / 0.10);
+  color: var(--ms-text);
+}
+body.ms-theme .ios-header h1 {
+  color: var(--ms-text) !important;
+}
+
+/* Round glass buttons */
+body.ms-theme .liquid-glass-button,
+body.ms-theme .ios-fab {
+  background: hsl(var(--foreground) / 0.09) !important;
+  border: 1px solid hsl(var(--foreground) / 0.12) !important;
+  color: var(--ms-text) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(180%) brightness(1.06);
+  backdrop-filter: blur(22px) saturate(180%) brightness(1.06);
+  box-shadow:
+    inset 1px 1px 1px 0 hsl(var(--foreground) / 0.30),
+    inset -1px -1px 1px 0 hsl(var(--foreground) / 0.12),
+    0 14px 36px hsl(0 0% 0% / 0.34);
+}
+
+body.ms-theme .liquid-glass-button:hover,
+body.ms-theme .ios-fab:hover {
+  background: hsl(var(--foreground) / 0.12) !important;
+}
+
+/* Grouped list cards */
+body.ms-theme .ios-card {
+  background: hsl(var(--foreground) / 0.09) !important;
+  border: 1px solid hsl(var(--foreground) / 0.12) !important;
+  border-radius: 18px !important;
+  -webkit-backdrop-filter: blur(22px) saturate(180%) brightness(1.06);
+  backdrop-filter: blur(22px) saturate(180%) brightness(1.06);
+  box-shadow:
+    inset 1px 1px 1px 0 hsl(var(--foreground) / 0.30),
+    inset -1px -1px 1px 0 hsl(var(--foreground) / 0.12),
+    0 14px 36px hsl(0 0% 0% / 0.34);
+  overflow: hidden;
+}
+
+body.ms-theme .ios-card-row + .ios-card-row {
+  border-top: 1px solid hsl(var(--foreground) / 0.08) !important;
+}
+
+body.ms-theme .ios-card-row:hover,
+body.ms-theme .ios-card button:hover {
+  background: hsl(var(--foreground) / 0.05) !important;
+}
+
+/* Section labels */
+body.ms-theme .ms-section-label {
+  color: hsl(0 0% 100% / 0.55) !important;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+}
+
+/* Icon chip — neutral silver */
+body.ms-theme .ms-icon-chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: hsl(var(--foreground) / 0.08);
+  border: 1px solid hsl(var(--foreground) / 0.10);
+  color: var(--ms-text);
+  flex-shrink: 0;
+}
+
+/* Hero "Get more Credits" upgrade card — neutral dark */
+.ms-upgrade-card {
+  position: relative;
+  border-radius: 22px;
+  padding: 18px 18px 18px 20px;
+  overflow: hidden;
+  background: hsl(var(--foreground) / 0.09);
+  border: 1px solid hsl(var(--foreground) / 0.12);
+  box-shadow:
+    inset 1px 1px 1px 0 hsl(var(--foreground) / 0.30),
+    inset -1px -1px 1px 0 hsl(var(--foreground) / 0.12),
+    0 14px 36px hsl(0 0% 0% / 0.34);
+  color: #f5f5f7;
+}
+
+.ms-upgrade-card::after {
+  content: none;
+}
+
+.ms-upgrade-btn {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 9px 20px;
+  font-size: 13px;
+  box-shadow: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.ms-upgrade-btn:hover {
+  opacity: 0.92;
+}
+.ms-upgrade-btn:active {
+  transform: scale(0.97);
+}
+
+/* Avatar ring — silver */
+.ms-avatar-ring {
+  position: relative;
+  padding: 2px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.45), var(--overlay-white-10));
+  box-shadow: none;
+}
+.ms-avatar-ring > * {
+  border-radius: 999px;
+  background: var(--ms-bg);
+}
+
+body.ms-theme .ios-aurora {
+  display: none;
+}
+
+/* Inputs */
+body.ms-theme input,
+body.ms-theme textarea,
+body.ms-theme select {
+  background: hsl(var(--foreground) / 0.06) !important;
+  border-color: hsl(var(--foreground) / 0.12) !important;
+  color: var(--ms-text) !important;
+}
+body.ms-theme input::placeholder,
+body.ms-theme textarea::placeholder {
+  color: hsl(0 0% 100% / 0.40) !important;
+}
+
+/* Destructive */
+body.ms-theme .text-destructive,
+body.ms-theme .text-destructive\/80 {
+  color: #ff6b6b !important;
+}
+
+/* Borders */
+body.ms-theme .border-border,
+body.ms-theme [class*="border-border"] {
+  border-color: hsl(var(--foreground) / 0.08) !important;
+}
+
+/* No shadows on settings pages */
+[data-ms-page],
+[data-ms-page] *,
+[data-settings-page],
+[data-settings-page] * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* ============================================================
+   CARTOON SETTINGS PAGES — convert the playful shell into the
+   same black + glass look as the rest of mobile settings.
+   ============================================================ */
+body.ms-theme .ms-cartoon-page {
+  background: transparent !important;
+}
+
+body.ms-theme .ms-cartoon-header {
+  background: hsl(var(--foreground) / 0.05) !important;
+  border-bottom: 1px solid hsl(var(--foreground) / 0.10) !important;
+  -webkit-backdrop-filter: saturate(170%) blur(22px);
+  backdrop-filter: saturate(170%) blur(22px);
+}
+
+body.ms-theme .ms-cartoon-card,
+body.ms-theme .ms-cartoon-hero {
+  background: hsl(var(--foreground) / 0.09) !important;
+  border: 1px solid hsl(var(--foreground) / 0.12) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(180%) brightness(1.06);
+  backdrop-filter: blur(22px) saturate(180%) brightness(1.06);
+  box-shadow:
+    inset 1px 1px 1px 0 hsl(var(--foreground) / 0.30),
+    inset -1px -1px 1px 0 hsl(var(--foreground) / 0.12),
+    0 14px 36px hsl(0 0% 0% / 0.34) !important;
+  border-radius: 24px !important;
+}
+
+body.ms-theme .ms-cartoon-hero img {
+  filter: none !important;
+}
+
+body.ms-theme .ms-cartoon-card h2,
+body.ms-theme .ms-cartoon-hero h2,
+body.ms-theme .ms-cartoon-card p,
+body.ms-theme .ms-cartoon-hero p,
+body.ms-theme .ms-cartoon-card h1,
+body.ms-theme .ms-cartoon-hero h1 {
+  color: var(--ms-text) !important;
+}
+
+body.ms-theme .ms-cartoon-card [style*="border"],
+body.ms-theme .ms-cartoon-hero [style*="border"] {
+  border-color: hsl(var(--foreground) / 0.12) !important;
+}
+
+/* Allow the glass inset highlight on settings surfaces */
+body.ms-theme .ios-card,
+body.ms-theme .ms-cartoon-card,
+body.ms-theme .ms-cartoon-hero,
+body.ms-theme .ms-cartoon-header,
+body.ms-theme .ios-header,
+body.ms-theme .liquid-glass-button,
+body.ms-theme .ios-fab,
+body.ms-theme .ms-upgrade-card {
+  box-shadow:
+    inset 1px 1px 1px 0 hsl(var(--foreground) / 0.30),
+    inset -1px -1px 1px 0 hsl(var(--foreground) / 0.12),
+    0 14px 36px hsl(0 0% 0% / 0.34) !important;
+}
+
+body.ms-theme .liquid-glass-button:hover,
+body.ms-theme .ios-fab:hover,
+body.ms-theme .ios-card-row:hover {
+  background: hsl(var(--foreground) / 0.12) !important;
+}
