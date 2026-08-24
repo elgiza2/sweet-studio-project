@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="dark" translate="no">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- No loader / no pulsing splash. Page paints instantly on a plain
+         background. When a valid PageSnapshot exists for the current path,
+         it's injected inline below (see the pre-hydration script at the
+         bottom of <body>) so returning visitors see the previous UI
+         immediately — no spinner, no flash. -->
+    <style>
+      :root { color-scheme: dark; }
+      html, body { background-color: #1c1c1c; margin: 0; }
+      #root { min-height: 100dvh; background-color: #1c1c1c; }
+      #root[data-snapshot-preview="true"] { pointer-events: none; user-select: none; contain: paint; }
+      #instant-shell {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        min-height: 100dvh;
+        display: none;
+        padding: 72px 24px 120px;
+        box-sizing: border-box;
+        background:
+          linear-gradient(180deg, rgba(10,10,10,.16), rgba(10,10,10,.84)),
+          url("https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260704_143500_a76b8e64-2c69-4683-80e7-2bb060a921d6.png&w=768&q=70") center/cover,
+          #0a0a0a;
+        color: #fff;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        transition: opacity 180ms ease;
+      }
+      #instant-shell[data-active="true"] { display: flex; flex-direction: column; justify-content: center; }
+      #instant-shell[data-hidden="true"] { opacity: 0; pointer-events: none; }
+      #instant-shell .instant-shell__inner { width: min(420px, 100%); }
+      #instant-shell .instant-shell__badge { display: inline-flex; align-items: center; margin-bottom: 32px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.88); font-size: 12px; }
+      #instant-shell h1 { margin: 0; max-width: 340px; font-size: 34px; line-height: 1.08; font-weight: 500; letter-spacing: 0; }
+      #instant-shell .instant-shell__marquee { margin: 30px -24px 0; display: flex; gap: 10px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
+      #instant-shell .instant-shell__chip { flex: 0 0 auto; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 10px 15px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.88); font-size: 14px; }
+      #instant-shell .instant-shell__cta { position: absolute; left: 24px; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom)); height: 56px; display: grid; place-items: center; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.18); color: #fff; font-size: 16px; font-weight: 600; }
+      @media (min-width: 769px) { #instant-shell { display: none !important; } }
+    </style>
+    <meta name="google" content="notranslate" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/app-icon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/app-icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/app-icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/app-icon-180.png" />
+    <meta name="apple-mobile-web-app-title" content="Megsy" />
+    <meta name="application-name" content="Megsy AI" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- canonical is set per-route via SEOHead/Helmet to avoid every page pointing to homepage -->
+    <meta name="theme-color" content="#1c1c1c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="megsy-build" content="%VITE_BUILD_ID%" />
+    <title>Megsy AI — All-in-One AI Platform for Chat, Images &amp; Video</title>
+
+    <!-- LCP image preload: the mobile instant-shell hero is a CSS background,
+         so the preload scanner cannot discover it. fetchpriority=high pulls it
+         forward the way Chrome documents for LCP images
+         (https://web.dev/articles/fetch-priority — Google Flights 2.6s -> 1.9s LCP). -->
+    <link rel="preload" as="image" fetchpriority="high" media="(max-width: 768px)" href="https://images.higgs.ai/?default=1&amp;output=webp&amp;url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260704_143500_a76b8e64-2c69-4683-80e7-2bb060a921d6.png&amp;w=768&amp;q=70" />
+    <link rel="preconnect" href="https://images.higgs.ai" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://ltgampdtawuefwwayncx.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://ltgampdtawuefwwayncx.supabase.co" />
+    <!-- LCP hint: preconnect + prefetch the hero video CDN so the landing hero paints faster. -->
+    <link rel="preconnect" href="https://d8j0ntlcm91z4.cloudfront.net" crossorigin />
+    <link rel="dns-prefetch" href="https://d8j0ntlcm91z4.cloudfront.net" />
+    <!-- Telegram Mini App SDK — required for initData when opened inside Telegram. -->
+    <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- LCP-critical fonts only (Space Grotesk + Inter). Trimmed weights + display=swap for instant first paint with system-font fallback. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" /></noscript>
+    <!-- Every secondary family in ONE non-blocking request (was 5 separate
+         stylesheets + an unused icon font = 6 extra round-trips before the
+         browser could finish font loading). print→all keeps it off the
+         critical path. -->
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&family=Work+Sans:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+Arabic:wght@400;600;700&family=Almarai:wght@300;400;700;800&family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&family=Readex+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Anton+SC&family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" />
+
+    <!-- ITC Garamond Std Narrow (mobile showcase screens) -->
+    <style>
+      @font-face { font-family: "ITC Garamond Std Narrow"; font-weight: 300; font-style: normal; font-display: swap;
+        src: url("https://res.cloudinary.com/dgupuutfn/raw/upload/v1783596334/ITCGaramondStd-LtNarrow_i2zcip.woff2") format("woff2"),
+             url("https://res.cloudinary.com/dgupuutfn/raw/upload/v1783596334/ITCGaramondStd-LtNarrow_soc5vc.woff") format("woff"); }
+      @font-face { font-family: "ITC Garamond Std Narrow"; font-weight: 400; font-style: normal; font-display: swap;
+        src: url("https://res.cloudinary.com/dgupuutfn/raw/upload/v1783596334/ITCGaramondStd-BkNarrow_xjfoc0.woff2") format("woff2"),
+             url("https://res.cloudinary.com/dgupuutfn/raw/upload/v1783596334/ITCGaramondStd-BkNarrow_wfoxm1.woff") format("woff"); }
+      @font-face { font-family: "ITC Garamond Std Narrow"; font-weight: 400; font-style: italic; font-display: swap;
+        src: url("https://res.cloudinary.com/dgupuutfn/raw/upload/v1783596334/ITCGaramondStd-BkNarrowIta_hiy9ld.woff2") format("woff2"),
+             url("https://res.cloudinary.com/dgupuutfn/raw/upload/v1783596334/ITCGaramondStd-BkNarrowIta_rlarxo.woff") format("woff"); }
+      @font-face { font-family: "ITC Garamond Std Narrow"; font-weight: 500; font-style: normal; font-display: swap;
+        src: url("https://res.cloudinary.com/dgupuutfn/raw/upload/v1783596334/ITCGaramondStd-BkNarrow_xjfoc0.woff2") format("woff2"),
+             url("https://res.cloudinary.com/dgupuutfn/raw/upload/v1783596334/ITCGaramondStd-BkNarrow_wfoxm1.woff") format("woff"); }
+    </style>
+    <link href="https://db.onlinewebfonts.com/c/e66905e07608167a84e6ad52f638c3c6?family=Helvetica+Now+Var" rel="stylesheet" media="print" onload="this.media='all'" />
+    
+  
+  <meta name="description" content="Chat, generate images, create videos, build slides, docs and full apps — one AI platform with every top model. Free to start.">
+  
+  
+  <meta property="og:image" content="https://megsyai.com/og-megsy.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Megsy AI — All-in-One AI Platform">
+  <meta name="twitter:image" content="https://megsyai.com/og-megsy.jpg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://megsyai.com/">
+  <meta property="og:site_name" content="Megsy AI">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="ar_EG">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Organization","name":"Megsy AI","url":"https://megsyai.com/","logo":"https://megsyai.com/__l5e/assets-v1/d75995aa-ee53-4948-b9de-0a0f157cc2f1/apple-touch-icon.png","sameAs":["https://x.com/megsyai","https://www.instagram.com/megsyai"],"description":"All-in-one AI platform for chat, images, video, slides, docs and apps."}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebSite","name":"Megsy AI","url":"https://megsyai.com/","potentialAction":{"@type":"SearchAction","target":"https://megsyai.com/search?q={search_term_string}","query-input":"required name=search_term_string"}}
+  </script>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta property="og:title" content="Megsy AI — All-in-One AI Platform for Chat, Images &amp; Video">
+  <meta name="twitter:title" content="Megsy AI — All-in-One AI Platform for Chat, Images &amp; Video">
+  <meta property="og:description" content="Chat, generate images, create videos, build slides, docs and full apps — one AI platform with every top model. Free to start.">
+  <meta name="twitter:description" content="Chat, generate images, create videos, build slides, docs and full apps — one AI platform with every top model. Free to start.">
+</head>
+
+  <body>
+    <!-- Global SVG filter used by liquid-glass surfaces (.gemini-glass-tile, plus sheet). -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <filter id="megsy-glass-warp" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.008 0.014" numOctaves="2" seed="7" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="28" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
+    <div id="root"></div>
+    <div id="instant-shell" aria-hidden="true">
+      <div class="instant-shell__inner">
+        <div class="instant-shell__badge">Megsy AI</div>
+        <h1>All the AI you need, one tap away.</h1>
+        <div class="instant-shell__marquee"><span class="instant-shell__chip">GPT</span><span class="instant-shell__chip">Claude</span><span class="instant-shell__chip">Gemini</span><span class="instant-shell__chip">Images</span><span class="instant-shell__chip">Video</span></div>
+      </div>
+      <div class="instant-shell__cta">Start now</div>
+    </div>
+    <script>
+      (function () {
+        try {
+          var shell = document.getElementById("instant-shell");
+          var root = document.getElementById("root");
+          if (!shell || !root) return;
+          var path = (location.pathname || "/").split(/[?#]/)[0];
+          var isMobile = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+          var seenWelcome = false;
+          try { seenWelcome = localStorage.getItem("megsy_seen_welcome") === "1"; } catch (e) {}
+          if (!isMobile || seenWelcome || !(path === "/" || path === "/welcome")) {
+            shell.remove();
+            return;
+          }
+          shell.setAttribute("data-active", "true");
+          var removeNow = function () {
+            if (shell && shell.parentNode) shell.parentNode.removeChild(shell);
+            shell = null;
+          };
+          if (root.getAttribute("data-snapshot-preview") === "true") {
+            removeNow();
+            return;
+          }
+          var hide = function () {
+            if (!shell || shell.getAttribute("data-hidden") === "true") return;
+            shell.setAttribute("data-hidden", "true");
+            setTimeout(function () { if (shell && shell.parentNode) shell.parentNode.removeChild(shell); }, 220);
+          };
+          var isRealContent = function () {
+            if (root.getAttribute("data-snapshot-preview") === "true") return false;
+            if (root.querySelector("[data-shell], form, textarea, input:not([type='hidden'])")) return true;
+            if (root.children.length > 0 && String(root.textContent || "").trim().length > 20) return true;
+            return false;
+          };
+          var observer = new MutationObserver(function () {
+            if (root.getAttribute("data-snapshot-preview") === "true") { observer.disconnect(); removeNow(); return; }
+            if (isRealContent()) { observer.disconnect(); hide(); }
+          });
+          observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true });
+          requestAnimationFrame(function () { if (isRealContent()) { observer.disconnect(); hide(); } });
+          setTimeout(function () { if (isRealContent()) { observer.disconnect(); hide(); } }, 1200);
+          // Hard fallback: never keep the splash on screen for more than 2.5s,
+          // and let any tap dismiss it so it can never trap the user.
+          setTimeout(function () { if (observer) observer.disconnect(); hide(); }, 2500);
+          window.addEventListener("load", function () { setTimeout(function () { if (observer) observer.disconnect(); hide(); }, 300); });
+          document.addEventListener("pointerdown", function () { if (observer) observer.disconnect(); hide(); }, { once: true });
+        } catch (err) { /* ignore */ }
+      })();
+    </script>
+    <!-- PageSnapshot injector removed: it stripped <style>/<link> from cached
+         HTML before hydration, causing an unstyled-HTML flash on load. -->
+
+    <!-- Speculation Rules API (Chromium 111+): prerender same-origin links on
+         moderate hover intent. Falls back silently on Safari/Firefox. -->
+    <script type="speculationrules">
+      {
+        "prerender": [
+          { "source": "document", "where": { "and": [ { "href_matches": "/*" }, { "not": { "href_matches": "/api/*" } }, { "not": { "href_matches": "/auth/*" } } ] }, "eagerness": "moderate" }
+        ],
+        "prefetch": [
+          { "source": "document", "where": { "href_matches": "/*" }, "eagerness": "conservative" }
+        ]
+      }
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+
+
+  </body>
+</html>
