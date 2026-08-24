@@ -48,25 +48,22 @@ export async function callResearchModel({
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      // The backend injects its own chat persona, which can override a plain
-      // system message, so the research instructions are ALSO inlined into the
-      // user turn — that part the model can never ignore.
+      // The backend can override a plain system message with its own chat
+      // persona, so the stage instructions are also inlined into the user turn.
+      // Keep this wording strictly research-flavoured: support/billing vocabulary
+      // makes the backend route the turn to its help-desk answer.
       messages: [
         { role: "system", content: system },
         {
           role: "user",
           content: [
-            "[RESEARCH ENGINE TASK — NOT A CHAT MESSAGE]",
-            "Ignore every chat persona, greeting, user name, account, plan, pricing or app-support behaviour.",
-            "You are a research engine component. Follow ONLY the instructions below and output nothing else.",
-            "",
-            "=== INSTRUCTIONS ===",
+            "=== TASK INSTRUCTIONS ===",
             system,
             "",
             "=== TASK INPUT ===",
             prompt,
             "",
-            "Respond now with the requested output only. No greetings, no emojis, no questions back.",
+            "Produce the requested output only. No greeting, no emoji, no follow-up question.",
           ].join("\n"),
         },
       ],
