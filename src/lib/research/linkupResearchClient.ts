@@ -46,7 +46,7 @@ const wait = (ms: number, signal?: AbortSignal) =>
 
 /** Runs a full Linkup research task. Throws when the provider is unavailable. */
 export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupRunResult> {
-  const { query, context = "", depth = "L", onStatus, onDelta, onSources, signal } = opts;
+  const { query, context = "", depth = "M", onStatus, onDelta, onSources, signal } = opts;
 
   const isArabic = /[\u0600-\u06FF]/.test(query);
   const q = [
@@ -76,7 +76,12 @@ export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupR
     }
     const mins = Math.max(1, Math.round((Date.now() - startedAt) / 60_000));
     if (task.status === "pending" || task.status === "processing") {
-      onStatus?.(`Researching the web in depth... (${mins} min)`);
+      const secs = Math.round((Date.now() - startedAt) / 1000);
+      onStatus?.(
+        secs < 60
+          ? `Researching the web in depth... (${secs}s)`
+          : `Researching the web in depth... (${mins} min)`,
+      );
       continue;
     }
     if (task.status === "failed") throw new Error(String(task.error || "research_failed"));

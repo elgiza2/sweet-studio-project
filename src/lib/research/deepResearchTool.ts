@@ -63,7 +63,7 @@ export async function runDeepResearchTool(run: DeepResearchToolRun): Promise<str
   const linkup = await runLinkupResearch({
     query: run.query,
     context: run.context,
-    depth: "L",
+    depth: "M",
     onStatus: run.onStatus,
     onDelta: run.onDelta,
     onSources: run.onSources,
