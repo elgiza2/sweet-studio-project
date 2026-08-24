@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { m as motion, useInView, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Check, ExternalLink } from "lucide-react";
-import { TemplateProps, splitIntoSections, hostname } from "./templateUtils";
+import { ArrowRight, Check } from "lucide-react";
+import { TemplateProps, splitIntoSections } from "./templateUtils";
 import SmartImage from "./SmartImage";
 import { withInlineCitations } from "./CitationPill";
 
@@ -398,48 +398,8 @@ const ResearchLandingTemplate = ({
           </section>
 
           {/* ---------------- SOURCES ---------------- */}
-          {sources.length > 0 && (
-            <section className="px-3 pb-24 sm:px-6">
-              <div className="mx-auto max-w-6xl">
-                <div className="mb-6 flex items-baseline gap-3">
-                  <div className="text-xs font-bold uppercase tracking-[0.28em]" style={{ color: CREAM }}>
-                    {"Sources"}
-                  </div>
-                  <div className="h-px flex-1 bg-foreground/10" />
-                  <div className="text-xs text-gray-500">{sources.length}</div>
-                </div>
-                <ol className="grid gap-2 sm:grid-cols-2">
-                  {sources.map((u, idx) => (
-                    <li key={`${u}-${idx}`}>
-                      <a
-                        href={u}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-start gap-3 rounded-xl border border-foreground/10 bg-background p-3.5 transition hover:border-foreground/25 hover:bg-background"
-                      >
-                        <span
-                          className="mt-0.5 flex h-6 min-w-6 items-center justify-center rounded-md bg-foreground/5 font-mono text-[11px] font-bold"
-                          style={{ color: CREAM }}
-                        >
-                          {String(idx + 1).padStart(2, "0")}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span
-                            className="block truncate text-sm font-bold"
-                            style={{ color: CREAM }}
-                          >
-                            {hostname(u)}
-                          </span>
-                          <span className="mt-0.5 block truncate text-[11px] text-gray-500">{u}</span>
-                        </span>
-                        <ExternalLink className="mt-1 h-3.5 w-3.5 shrink-0 text-gray-500 transition group-hover:text-foreground" />
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </section>
-          )}
+          {/* Removed: sources are shown in the ResearchReportTabs accordion below to avoid duplication. */}
+
         </>
       )}
     </div>
