@@ -3,7 +3,6 @@
  *  the intent router below when a normal-mode message clearly asks for real
  *  research instead of a quick answer. */
 import type { WebSource } from "@/lib/search/webSearchClient";
-import { runDeepResearchAgent } from "./deepResearchAgent";
 import { runLinkupResearch } from "./linkupResearchClient";
 
 
@@ -57,35 +56,20 @@ export interface DeepResearchToolRun {
   signal?: AbortSignal;
 }
 
-/** Runs the agent as a tool call and returns the final report text.
- *  Primary provider: Linkup /research (autonomous, cited). Falls back to the
- *  in-repo multi-stage agent when the provider is unavailable. */
+/** Runs Linkup's autonomous research agent and returns its cited report.
+ *  There is deliberately no legacy-model fallback: falling back can turn a
+ *  provider error into an unrelated chat/billing response. */
 export async function runDeepResearchTool(run: DeepResearchToolRun): Promise<string> {
-  try {
-    const linkup = await runLinkupResearch({
-      query: run.query,
-      context: run.context,
-      depth: "L",
-      onStatus: run.onStatus,
-      onDelta: run.onDelta,
-      onSources: run.onSources,
-      signal: run.signal,
-    });
-    if (linkup.report.trim()) return linkup.report;
-  } catch (err) {
-    if ((err as Error)?.name === "AbortError") throw err;
-    run.onStatus?.("Switching to the built-in research pipeline...");
-  }
-
-  const result = await runDeepResearchAgent({
-    question: run.query,
+  const linkup = await runLinkupResearch({
+    query: run.query,
     context: run.context,
-    model: run.model,
+    depth: "L",
     onStatus: run.onStatus,
     onDelta: run.onDelta,
     onSources: run.onSources,
     signal: run.signal,
   });
-  return result.report;
+  if (!linkup.report.trim()) throw new Error("Linkup returned an empty research report.");
+  return linkup.report;
 }
 
