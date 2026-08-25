@@ -13,6 +13,9 @@ export interface LinkupRunOptions {
   onDelta?: (chunk: string) => void;
   onSources?: (sources: WebSource[]) => void;
   signal?: AbortSignal;
+  /** Return the provider's raw findings without running our writer over them
+   *  (used when a higher-level orchestrator writes the final report). */
+  raw?: boolean;
 }
 
 export interface LinkupRunResult {
@@ -46,7 +49,7 @@ const wait = (ms: number, signal?: AbortSignal) =>
 
 /** Runs a full Linkup research task. Throws when the provider is unavailable. */
 export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupRunResult> {
-  const { query, context = "", depth = "M", onStatus, onDelta, onSources, signal } = opts;
+  const { query, context = "", depth = "M", onStatus, onDelta, onSources, signal, raw: rawOnly = false } = opts;
 
   const isArabic = /[\u0600-\u06FF]/.test(query);
   const q = [
@@ -99,6 +102,8 @@ export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupR
 
       // The provider returns dense sourced material. Run our own writer over it
       // so the user gets an explained analysis, not a raw data dump.
+      if (rawOnly) return { report: raw, sources };
+
       onStatus?.("Analysing the findings and writing the report...");
       let report: string;
       try {
