@@ -279,6 +279,7 @@ export async function runHierarchicalResearch(
         query,
         context,
         depth: "M",
+        raw: true,
         signal,
         onSources: (s) => {
           providerSources = s;
