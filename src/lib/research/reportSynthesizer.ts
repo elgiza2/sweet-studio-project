@@ -89,36 +89,52 @@ export async function synthesizeResearchReport({
   };
 
   onStatus?.(`Writing ${total} analytical sections...`);
-  const openingPromise = run(
-    SYNTH_OPENING_SYSTEM,
-    "Write the opening now: title, executive summary, and context.",
-    chunks.slice(0, 2).join("\n\n").slice(0, CHUNK_BUDGET),
-  );
-
-  // Sections are independent views of different evidence chunks. Writing them
-  // concurrently avoids turning a strong report into a 15-minute browser job.
-  const sectionPromises = chunks.map((chunk) =>
-    run(
+  const jobs = [
+    () => run(
+      SYNTH_OPENING_SYSTEM,
+      "Write the opening now: title, executive summary, and context.",
+      chunks.slice(0, 2).join("\n\n").slice(0, CHUNK_BUDGET),
+    ),
+    ...chunks.map((chunk) => () => run(
       SYNTH_SECTION_SYSTEM,
       "Write ONLY one themed analytical section from this material.",
       chunk,
+    )),
+    () => run(
+      SYNTH_CLOSING_SYSTEM,
+      "Write ONLY the closing now.",
+      chunks.slice(-2).join("\n\n").slice(0, CHUNK_BUDGET),
     ),
-  );
+  ];
 
-  const closingPromise = run(
-    SYNTH_CLOSING_SYSTEM,
-    "Write ONLY the closing now.",
-    chunks.slice(-2).join("\n\n").slice(0, CHUNK_BUDGET),
-  );
+  // Keep pressure below the workspace-wide rate limit. A failed section must
+  // not discard every successful section or the provider's original report.
+  const results: Array<PromiseSettledResult<string> | undefined> = new Array(jobs.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < jobs.length) {
+      const index = next;
+      next += 1;
+      try {
+        results[index] = { status: "fulfilled", value: await jobs[index]() };
+      } catch (reason) {
+        if (reason instanceof DOMException && reason.name === "AbortError") throw reason;
+        results[index] = { status: "rejected", reason };
+      }
+    }
+  };
+  await Promise.all([worker(), worker()]);
 
-  const pieces = await Promise.all([openingPromise, ...sectionPromises, closingPromise]);
-  const report = pieces.join("\n\n");
+  const pieces = results.flatMap((result) =>
+    result?.status === "fulfilled" && result.value.trim() ? [result.value.trim()] : [],
+  );
+  const report = pieces.length >= 2
+    ? pieces.join("\n\n")
+    : `# ${question}\n\n${material}`;
   onDelta?.(report);
 
   const finished = report.trim();
   const words = finished.split(/\s+/).filter(Boolean).length;
-  if (words < 1200 || (finished.match(/^##?\s+/gm) || []).length < 5) {
-    throw new Error("Research report did not meet the required depth.");
-  }
+  if (!finished) throw new Error("Research writer returned an empty report.");
   return finished;
 }

@@ -100,13 +100,22 @@ export async function runLinkupResearch(opts: LinkupRunOptions): Promise<LinkupR
       // The provider returns dense sourced material. Run our own writer over it
       // so the user gets an explained analysis, not a raw data dump.
       onStatus?.("Analysing the findings and writing the report...");
-      let report = await synthesizeResearchReport({
-        question: query,
-        raw,
-        onStatus,
-        onDelta,
-        signal,
-      });
+      let report: string;
+      try {
+        report = await synthesizeResearchReport({
+          question: query,
+          raw,
+          onStatus,
+          onDelta,
+          signal,
+        });
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") throw error;
+        // Linkup's answer is already a complete cited report. Preserve it if
+        // the optional rewriting pass is temporarily unavailable.
+        report = `# ${query}\n\n${raw}`;
+        onDelta?.(report);
+      }
 
       if (sources.length) {
         const list = sources

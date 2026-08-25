@@ -23,17 +23,35 @@ export async function callResearchModel({
   signal,
   idleTimeoutMs: _idleTimeoutMs,
 }: ResearchModelCall): Promise<string> {
-  const resp = await fetch("/api/research-write", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ system, prompt }),
-    signal,
-  });
+  let resp: Response | null = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    resp = await fetch("/api/research-write", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ system, prompt }),
+      signal,
+    });
+    if (resp.ok && resp.body) break;
 
-  if (!resp.ok || !resp.body) {
     const data = await resp.json().catch(() => null) as { error?: string } | null;
-    throw new Error(data?.error || `Research writer failed (${resp.status}).`);
+    const message = data?.error || `Research writer failed (${resp.status}).`;
+    const retryable = resp.status === 429 || resp.status >= 500;
+    if (!retryable || attempt === 2) throw new Error(message);
+
+    const retryAfter = Number(resp.headers.get("Retry-After"));
+    const delay = Number.isFinite(retryAfter) && retryAfter > 0
+      ? retryAfter * 1000
+      : 1500 * 2 ** attempt + Math.round(Math.random() * 500);
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(resolve, delay);
+      signal?.addEventListener("abort", () => {
+        clearTimeout(timer);
+        reject(new DOMException("aborted", "AbortError"));
+      }, { once: true });
+    });
   }
+
+  if (!resp?.ok || !resp.body) throw new Error("Research writer failed to start.");
 
   const reader = resp.body.getReader();
   const decoder = new TextDecoder();
