@@ -4,6 +4,7 @@
  *  research instead of a quick answer. */
 import type { WebSource } from "@/lib/search/webSearchClient";
 import { runLinkupResearch } from "./linkupResearchClient";
+import { runHierarchicalResearch } from "./hierarchicalAgent";
 
 
 export const DEEP_RESEARCH_TOOL = {
@@ -56,10 +57,25 @@ export interface DeepResearchToolRun {
   signal?: AbortSignal;
 }
 
-/** Runs Linkup's autonomous research agent and returns its cited report.
- *  There is deliberately no legacy-model fallback: falling back can turn a
- *  provider error into an unrelated chat/billing response. */
+/** Runs the hierarchical multi-agent pipeline (supervisor -> parallel
+ *  sub-agents -> verification round -> writer). If the whole team fails we fall
+ *  back to the provider's own research agent alone, never to the chat model. */
 export async function runDeepResearchTool(run: DeepResearchToolRun): Promise<string> {
+  try {
+    const result = await runHierarchicalResearch({
+      query: run.query,
+      context: run.context,
+      model: run.model,
+      onStatus: run.onStatus,
+      onDelta: run.onDelta,
+      onSources: run.onSources,
+      signal: run.signal,
+    });
+    if (result.report.trim()) return result.report;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+  }
+
   const linkup = await runLinkupResearch({
     query: run.query,
     context: run.context,
@@ -69,7 +85,6 @@ export async function runDeepResearchTool(run: DeepResearchToolRun): Promise<str
     onSources: run.onSources,
     signal: run.signal,
   });
-  if (!linkup.report.trim()) throw new Error("Linkup returned an empty research report.");
+  if (!linkup.report.trim()) throw new Error("Deep Research returned an empty report.");
   return linkup.report;
 }
-
